@@ -1,0 +1,6 @@
+{
+  sourceMaps: "both",
+  "presets": [
+    "env", "react"
+  ]
+}

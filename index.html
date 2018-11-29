@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>microbit:proxy</title>
+  <style type="text/css">
+    p {
+      color: blue;
+      line-height: 1.5;
+    }
+
+    #container {
+      min-height: 300px;
+      display: flex;
+      flex-direction: column
+    }
+
+    #conn-selector {
+      height: 30px;
+    }
+
+    #conn-selector form {
+      float: left;
+      margin-right: 10px;
+    }
+
+    #console {
+      flex: 1;
+      background-color: black;
+      color: white;
+    }
+
+    #console ol {
+      list-style: none;
+    }
+
+    #console time {
+      margin-right: 10px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script>
+    require('./dist/renderer')
+  </script>
+</body>
+
+</html>
