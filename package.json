@@ -1,32 +1,63 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "microbit-proxy",
+  "homepage": "./",
+  "version": "0.0.1",
+  "description": "microbit open the web.",
   "main": "dist/main",
   "scripts": {
-    "start": "npm run build && electron .",
-    "install": "electron-rebuild",
-    "build": "standard src --fix && babel src --out-dir dist"
+    "start": "electron .",
+    "postinstall": "electron-builder install-app-deps",
+    "build": "standard src --fix && babel src --out-dir dist",
+    "dist": "electron-builder -wlm"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
-  "keywords": [
-    "Electron"
-  ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": {
+    "name": "Ryota Sago",
+    "email": "sago@syun.jp"
+  },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-preset-react": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
     "electron": "^3.0.10",
-    "electron-rebuild": "^1.8.2",
+    "electron-builder": "^20.38.0",
     "standard": "^12.0.1"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
     "immutable-tuple": "^0.4.9",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "serialport": "^7.0.2"
+  },
+  "build": {
+    "productName": "microbit-proxy",
+    "appId": "tokyo.centerof",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "build/icons/*",
+      "index.html"
+    ],
+    "mac": {
+      "icon": "build/icons/icon.icns",
+      "category": "education"
+    },
+    "win": {
+      "icon": "build/icons/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "icon": "build/icons",
+      "target": [
+        "deb",
+        "rpm"
+      ],
+      "category": "Education"
+    }
   }
 }

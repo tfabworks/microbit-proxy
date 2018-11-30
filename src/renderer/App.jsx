@@ -51,7 +51,7 @@ class App extends React.Component {
           </form>
           <button type='submit'>接続</button>
         </div>
-        <Terminal />
+        <Terminal terminal={this.state.terminal}/>
       </div>
     )
   }

@@ -1,7 +1,11 @@
 const React = require('react')
 
 export default
-class Terminal extends React.Component {
+class extends React.Component {
+  constructor(props) {
+    super(props)
+    console.log(props.terminal)
+  }
   render () {
     return (
       <div id='console'>
