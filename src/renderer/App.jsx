@@ -1,5 +1,6 @@
 import SerialPort from 'serialport'
 import React from 'react'
+import fetch from 'isomorphic-fetch'
 import { tuple } from 'immutable-tuple'
 import Terminal from './component/Terminal'
 
@@ -9,6 +10,7 @@ class App extends React.Component {
     super(props)
     
     this.state = {
+      ports: [],
       port: new SerialPort('/dev/tty.usbmodem14302', {
         baudRate: 115200
       }),
@@ -17,16 +19,27 @@ class App extends React.Component {
       }
     }
 
+    SerialPort.list((err, ports) => {
+      console.log('ports', ports)
+      this.setState({ports: ports})
+      if (err) {
+        console.log(err.message)
+        return
+      }
+
+      if (ports.length === 0) {
+        console.log('No ports discovered')
+      }
+    })
+
     let chars = ''
     this.state.port.on('readable', () => {
       const char = this.state.port.read().toString()
 
       if (char === '\r\n') {
-        this.setState(state => {
-          let tmp = state.terminal
-          tmp.lines.push(tuple((new Date()).toISOString(), chars.trim()))
-          return { terminal: tmp}
-        })
+        let line = chars.trim()
+        this.consoleLog(`Serial, Recieve: ${line}`)
+        this._serialHandler(line)
         chars = ''
       }
       chars += char
@@ -43,10 +56,9 @@ class App extends React.Component {
         <div id='conn-selector'>
           <form>
             <select name='com-port'>
-              <option value='1'>COM1</option>
-              <option value='2'>COM2</option>
-              <option value='3'>COM3</option>
-              <option value='4'>COM4</option>
+              {this.state.ports.map( (p,i) => {
+                return <option key={i} value={p.comName}>{p.comName}</option>
+              })}
             </select>
           </form>
           <button type='submit'>接続</button>
@@ -56,19 +68,33 @@ class App extends React.Component {
     )
   }
 
-  _debug () {
-    SerialPort.list((err, ports) => {
-      console.log('ports', ports)
-      if (err) {
-        console.log(err.message)
-        return
-      }
-
-      if (ports.length === 0) {
-        console.log('No ports discovered')
-      }
+  consoleLog(str) {
+    this.setState(state => {
+      state.terminal.lines.push(tuple((new Date()).toISOString(), str))
+      return state
     })
+  }
 
+  async _serialHandler(str) {
+    if (str === 'GET') {
+      this.setState( {serialState: str} )
+    } else if (/^POST:\d+$/.test(str)) {
+      this.setState({serialState: str})
+    } else if (/^https?:\/\//.test(str)) {
+      this.setState({ serialState: null })
+      this.consoleLog('HTTP, Request')
+      const resp = await fetch(str)
+      this.consoleLog(`HTTP, Response,${resp.status}`)
+      this.consoleLog(await resp.text())
+            
+    } else {
+      // TODO: error message on terminal
+      console.log("Unknown message.")
+    }
+    
+  }
+
+  _debug () {
     setInterval(() => {
       this.state.terminal.lines.forEach((v, i) => {
         console.log(`${i}: ${v[0]},${v[1]}`)

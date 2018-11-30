@@ -24,7 +24,9 @@
     "standard": "^12.0.1"
   },
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "immutable-tuple": "^0.4.9",
+    "isomorphic-fetch": "^2.2.1",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "serialport": "^7.0.2"
