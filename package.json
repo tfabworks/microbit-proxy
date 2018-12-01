@@ -5,7 +5,7 @@
   "description": "microbit open the web.",
   "main": "dist/main",
   "scripts": {
-    "start": "electron .",
+    "start": "NODE_ENV=dev electron .",
     "postinstall": "electron-builder install-app-deps",
     "build": "standard src --fix && babel src --out-dir dist",
     "dist": "electron-builder -wlm"
