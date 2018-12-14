@@ -8,6 +8,11 @@ export default
 class App extends React.Component {
   constructor (props) {
     super(props)
+    this.serialState = {
+      url: null,
+      method: null,
+      sequense: null
+    }
 
     this.state = {
       ports: [],
@@ -15,7 +20,7 @@ class App extends React.Component {
       selected: '',
       terminal: {
         lines: []
-      }
+      } 
     }
 
     SerialPort.list((err, ports) => {
@@ -119,20 +124,21 @@ class App extends React.Component {
 
   async _serialHandler (str) {
     if (str === 'GET') {
-      this.setState({
-        serialState: { method: 'GET' }
-      })
+      this.serialState = {
+        method: 'GET',
+        sequense: null,
+        url: null
+      }
     } else if (/^POST:\d+$/.test(str)) {
       const match = /¥d+/.match(str)
-      if (match === null) throw new Error('sequense number is none.')
-      this.setState({
-        serialState: {
+      if (match === null)
+        throw new Error('sequense number is none.')
+      this.serialState = {
           method: 'POST',
           sequense: match[0]
-        }
-      })
+      }
     } else if (/^https?:\/\//.test(str)) {
-      if (this.state.serialState.method === 'GET') {
+      if (this.serialState.method === 'GET') {
         this.consoleLog('HTTP, Request')
         const resp = await fetch(str)
         this.consoleLog(`HTTP, Response,${resp.status}`)
@@ -140,20 +146,15 @@ class App extends React.Component {
         console.log(`txt: ${txt}`)
         this.state.port.write(txt + '\r\n')
         this.consoleLog(`Serial, Send, ${txt}`)
-      } else if (this.state.serialState.method === 'POST') {
-        this.setState(state => {
-          const tmpState = state.serialState
-          return {
-            serialState: {
-              method: tmpState.method,
-              sequense: tmpState.sequense,
-              url: str
-            } }
-        })
+      } else if (this.serialState.method === 'POST') {
+        console.log("inner POST")
+        this.serialState.url = str
+      } else {
+        console.warn("unhandle message.")
       }
     } else if (/^{.*}$/.test(str)) { // JSON
-      const sequense = this.state.serialState.sequense
-      const resp = await fetch(this.state.serialState.url, {
+      const sequense = this.serialState.sequense
+      const resp = await fetch(this.serialState.url, {
         method: 'POST',
         body: str,
         timeout: 5000
@@ -166,7 +167,11 @@ class App extends React.Component {
         this.consoleLog(`${sequense}, Serial, Send, ${txt}`)
         this.state.port.write(txt + '\r\n')
       }
-      this.setState({ serialState: null })
+      this.serialState = {
+        url: null,
+        method: null,
+        sequense: null
+      }
     } else {
       // TODO: error message on terminal
       console.log('Unknown message.')

@@ -7,8 +7,8 @@ function createWindow () {
 
   mainWindow.loadFile('index.html')
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if (process.env.NODE_ENV === "dev")
+    mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
