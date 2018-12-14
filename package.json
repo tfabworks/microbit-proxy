@@ -1,8 +1,8 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.0.1",
-  "description": "microbit open the web.",
+  "version": "0.0.3",
+  "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
     "start": "NODE_ENV=dev electron .",
@@ -11,7 +11,7 @@
     "dist": "electron-builder -wlm"
   },
   "author": {
-    "name": "Ryota Sago",
+    "name": "Saggggo",
     "email": "sago@syun.jp"
   },
   "devDependencies": {
