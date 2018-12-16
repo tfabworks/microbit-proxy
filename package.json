@@ -1,7 +1,7 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
@@ -47,7 +47,7 @@
       "category": "education"
     },
     "win": {
-      "icon": "build/icons/icon.ico",
+      "icon": "build/icons/microbit-proxy.ico",
       "target": [
         "nsis",
         "portable"
