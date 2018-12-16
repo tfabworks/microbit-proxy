@@ -2,8 +2,8 @@ import React from 'react'
 import { tuple } from 'immutable-tuple'
 import Terminal from './component/Terminal'
 import EventEmitter from 'events'
-import StateHandler from './StateHandler';
-import SerialPortWrapper from './SerialPortWrapper';
+import StateHandler from './StateHandler'
+import SerialPortWrapper from './SerialPortWrapper'
 
 export default
 class App extends React.Component {
@@ -18,10 +18,9 @@ class App extends React.Component {
     })
     this.handler = null
     this.serial = new SerialPortWrapper(this.terminal)
-    
+
     this.serial.on('state', state => {
       this.setState(before => {
-        console.log(before)
         return Object.assign(before, state)
       })
     })
@@ -29,18 +28,17 @@ class App extends React.Component {
       this.handler = new StateHandler(this.terminal, port)
     })
     this.serial.on('receive', txt => {
-      if (this.handler !== null)
-        this.handler.handle(txt)
+      if (this.handler !== null) { this.handler.handle(txt) }
     })
-    
+
     this.state = {
       ports: [],
       selected: '',
       terminal: {
         lines: []
-      } 
+      }
     }
-    
+
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
 
@@ -74,7 +72,7 @@ class App extends React.Component {
   handleSubmit (e) {
     this.serial.connectPort(this.state.selected)
   }
-  
+
   _debug () {
     setInterval(() => {
       this.state.terminal.lines.forEach((v, i) => {
