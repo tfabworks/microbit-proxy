@@ -1,45 +1,46 @@
-import SerialPort from 'serialport'
 import React from 'react'
-import fetch from 'isomorphic-fetch'
 import { tuple } from 'immutable-tuple'
 import Terminal from './component/Terminal'
+import EventEmitter from 'events'
+import StateHandler from './StateHandler';
+import SerialPortWrapper from './SerialPortWrapper';
 
 export default
 class App extends React.Component {
   constructor (props) {
     super(props)
-    this.serialState = {
-      url: null,
-      method: null,
-      sequense: null
-    }
-
+    this.terminal = new EventEmitter()
+    this.terminal.on('line', str => {
+      this.setState(state => {
+        state.terminal.lines.push(tuple((new Date()).toISOString(), str))
+        return state
+      })
+    })
+    this.handler = null
+    this.serial = new SerialPortWrapper(this.terminal)
+    
+    this.serial.on('state', state => {
+      this.setState(before => {
+        console.log(before)
+        return Object.assign(before, state)
+      })
+    })
+    this.serial.on('connected', port => {
+      this.handler = new StateHandler(this.terminal, port)
+    })
+    this.serial.on('receive', txt => {
+      if (this.handler !== null)
+        this.handler.handle(txt)
+    })
+    
     this.state = {
       ports: [],
-      port: null,
       selected: '',
       terminal: {
         lines: []
       } 
     }
-
-    SerialPort.list((err, ports) => {
-      console.log('ports', ports)
-      if (err) {
-        console.log(err.message)
-        return
-      }
-
-      if (ports.length === 0) {
-        console.log('No ports discovered')
-      }
-      this.setState({ 'ports': ports })
-      if (this.state.ports.length > 0) {
-        this.setState({ selected: this.state.ports[0].comName })
-      }
-    })
-
-    setInterval(() => this.updatePortList(), 3000)
+    
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
 
@@ -71,118 +72,15 @@ class App extends React.Component {
   }
 
   handleSubmit (e) {
-    this.connectPort(this.state.selected)
+    this.serial.connectPort(this.state.selected)
   }
-
-  updatePortList () {
-    SerialPort.list((err, ports) => {
-      console.log('ports', ports)
-      if (err) {
-        console.log(err.message)
-        return
-      }
-
-      if (ports.length === 0) {
-        console.log('No ports discovered')
-      }
-      this.setState({ 'ports': ports })
-    })
-  }
-
-  connectPort (comName) {
-    if (this.state.port !== null && this.state.port.isOpen) {
-      this.state.port.close(err => {
-        console.log(err)
-      })
-    }
-    const p = new SerialPort(comName, {
-      baudRate: 115200
-    })
-
-    let chars = ''
-    p.on('readable', () => {
-      const char = p.read().toString()
-      if (char === '\r\n') {
-        let line = chars.trim()
-        this.consoleLog(`Serial, Recieve: ${line}`)
-        this._serialHandler(line)
-        chars = ''
-      }
-      chars += char
-    })
-
-    this.setState({ port: p })
-    this.consoleLog('Connected.')
-  }
-
-  consoleLog (str) {
-    this.setState(state => {
-      state.terminal.lines.push(tuple((new Date()).toISOString(), str))
-      return state
-    })
-  }
-
-  async _serialHandler (str) {
-    if (str === 'GET') {
-      this.serialState = {
-        method: 'GET',
-        sequense: null,
-        url: null
-      }
-    } else if (/^POST:\d+$/.test(str)) {
-      const match = /¥d+/.match(str)
-      if (match === null)
-        throw new Error('sequense number is none.')
-      this.serialState = {
-          method: 'POST',
-          sequense: match[0]
-      }
-    } else if (/^https?:\/\//.test(str)) {
-      if (this.serialState.method === 'GET') {
-        this.consoleLog('HTTP, Request')
-        const resp = await fetch(str)
-        this.consoleLog(`HTTP, Response,${resp.status}`)
-        const txt = (await resp.text())
-        console.log(`txt: ${txt}`)
-        this.state.port.write(txt + '\r\n')
-        this.consoleLog(`Serial, Send, ${txt}`)
-      } else if (this.serialState.method === 'POST') {
-        console.log("inner POST")
-        this.serialState.url = str
-      } else {
-        console.warn("unhandle message.")
-      }
-    } else if (/^{.*}$/.test(str)) { // JSON
-      const sequense = this.serialState.sequense
-      const resp = await fetch(this.serialState.url, {
-        method: 'POST',
-        body: str,
-        timeout: 5000
-      })
-      this.consoleLog(`HTTP, Response,${resp.status}`)
-      this.consoleLog(`${sequense}, Serial, Send, ${sequense}`)
-      this.state.port.write(sequense + '\r\n')
-      if (resp.ok) {
-        const txt = await resp.text()
-        this.consoleLog(`${sequense}, Serial, Send, ${txt}`)
-        this.state.port.write(txt + '\r\n')
-      }
-      this.serialState = {
-        url: null,
-        method: null,
-        sequense: null
-      }
-    } else {
-      // TODO: error message on terminal
-      console.log('Unknown message.')
-    }
-  }
-
+  
   _debug () {
     setInterval(() => {
       this.state.terminal.lines.forEach((v, i) => {
         console.log(`${i}: ${v[0]},${v[1]}`)
       })
+      console.log(this.state)
     }, 3000)
   }
 }
