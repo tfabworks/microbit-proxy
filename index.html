@@ -4,41 +4,101 @@
 <head>
   <meta charset="UTF-8">
   <title>microbit:proxy</title>
+  <link href="./node_modules/xterm/dist/xterm.css" rel="stylesheet" type="text/css">
   <style type="text/css">
+    body {
+      font-family: helvetica, sans-serif, arial;
+      font-size: 1em;
+    }
     p {
       color: blue;
       line-height: 1.5;
     }
 
+    table {
+      margin: auto;
+      max-width: 800px;
+      width: auto;
+      table-layout: fixed;
+    }
+    table, td {
+      border: 1px solid #333;
+      overflow-wrap : break-word;
+    }
+
     #container {
+      width: 800px;
       min-height: 300px;
+      margin: auto;
       display: flex;
       flex-direction: column
     }
-
-    #conn-selector {
-      height: 30px;
+    
+    #ParameterContainer {
+      margin-bottom: 15px;
+    }
+    #ParameterList {
+      margin-bottom: 15px;
+    }
+    #ParameterList .frame {
+      color: black;
+      padding: 2px;
+      min-width:60px
+    }
+    #ParameterItem {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: 3px;
+    }
+    #ParameterItem:first-child {
+      margin-left: 6px;
+    }
+    #ParameterItem div {
+      flex: 1;
+      margin-right: 10px;
+    }
+    #ParameterItem span {
+      flex: none;
+    }
+    #ParameterItem span {
+      display: inline-block;
     }
 
-    #conn-selector form {
+    #ParameterSelector {
+      flex: 1;
+      margin: auto;
+      display: flex;
+      flex-direction: row;
+    }
+    #ParameterSelector:first-child {
+      margin-left: 10px;
+    }
+    #ParameterSelector select,input {
+      width: 80px;
+      margin-right: 10px;
+      flex: none;
+    }
+
+    #ConnectionSelector {
+      height: 30px;
+    }
+    #ConnectionSelector form {
       float: left;
       margin-right: 10px;
     }
 
-    #console {
-      flex: 1;
-      background-color: black;
-      color: white;
-      min-height: 400px;
-      max-width: 640px;
+    #TerminalContainer {
+      flex: none;
+      width: 800px;
+      height: 450px;
+      margin: 0 auto;
+      padding: 2px;
     }
 
-    #console ol {
-      list-style: none;
-    }
-
-    #console time {
-      margin-right: 10px;
+    #FooterLogo {
+      width: 160px;
+      height: 30px;
+      float: right;
     }
 
   </style>

@@ -3,15 +3,10 @@ import EventEmitter from 'events'
 
 export default
 class SerialPortWrapper extends EventEmitter {
-  constructor (terminal) {
+  constructor () {
     super()
-    this.terminal = terminal
     this.port = null
-    this.on('write', text => {
-      if (this.port === null) console.warn('port is not connected.')
-      else this.port.write(text)
-    })
-
+    
     SerialPort.list((err, ports) => {
       console.log('ports', ports)
       if (err) {
@@ -69,9 +64,15 @@ class SerialPortWrapper extends EventEmitter {
       }
       chars += char
     })
-
+    p.on('close', () => {
+      this.emit('close')
+    })
     this.port = p
     this.emit('connected', p)
-    this.terminal.emit('line', 'Connected.')
+  }
+
+  write(text) {
+    if (this.port === null) console.warn('port is not connected.')
+    else this.port.write(text)
   }
 }
