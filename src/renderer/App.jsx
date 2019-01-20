@@ -116,15 +116,10 @@ class App extends React.Component {
     const t = str.split(':')
     const key = t[0]
     const serialNumber = t[1]
-    console.log(key)
-    console.log(serialNumber)
     this.terminalOut(`${serialNumber}, Serial, Recieve: ${str}`)
-    console.log(this.state.parameters)
     const param = this.state.parameters.find(e => { return e.name == key })
-    console.log(param)
     if (param) {
       if (param.method === "GET") {
-        console.log("GET")
         this.terminalOut(`${serialNumber}, HTTP, Request: GET, ${param.url}`)
         const resp = await fetch(param.url)
         this.terminalOut(`${serialNumber}, HTTP, Response: ${resp.status}`)
@@ -132,14 +127,10 @@ class App extends React.Component {
         this.serial.write(`${serialNumber}\r\n`)
         this.terminalOut(`${serialNumber}, Serial, Send: ${serialNumber}`)
         let txt = await resp.text()
-        console.log(txt)
         if (param.regex) txt = txt.match(new RegExp(param.regex))
-        console.log(param.regex)
-        console.log(txt)
         this.serial.write(`${txt}\r\n`)
         this.terminalOut(`${serialNumber}, Serial, Send: ${txt}`)
       } else if (param.method === "POST") {
-        console.log("POST")
         this.terminalOut(`${serialNumber}, HTTP, Request: POST, ${param.url}`)
         const resp = await fetch(param.url, {
           method: 'POST',
@@ -147,11 +138,10 @@ class App extends React.Component {
           timeout: 5000
         })
         this.terminalOut(`${serialNumber}, HTTP, Response: ${resp.status}`)
-        this.serial.write("\r\n")
         this.serial.write(`${serialNumber}\r\n`)
         this.terminalOut(`${serialNumber}, Serial, Send, ${serialNumber}`)
         let txt = await resp.text()
-        if (param.regex) txt = txt.match(param.regex)
+        if (param.regex) txt = txt.match(new RegExp(param.regex))
         this.serial.write(`${txt}\r\n`)
         this.terminalOut(`${serialNumber}, Serial, Send, ${txt}`)
       } else {

@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron')
+const isWin = (process.platform === 'win32')
 
 let mainWindow
 
@@ -20,6 +21,13 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   })
+  if (isWin) {
+    mainWindow.on('app-command', (e, cmd) => {
+      if (cmd === 'browser-backward' && mainWindow.webContents.canGoBack()) {
+          mainWindow.webContents.goBack()
+        }
+    })
+  }
 }
 
 app.on('ready', createWindow)
