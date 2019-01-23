@@ -21,10 +21,10 @@ class Parameter extends React.Component {
   render() {
       return (
       <div id='ParameterContainer'>
-        <table id='ParameterList'>
+        <table className='table'>
           <thead>
             <tr>
-              <th>name</th><th>method</th><th>URL</th><th>body</th><th>regex</th><th></th>
+              <th>ID</th><th>method</th><th>URL</th><th>body</th><th>regex</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -36,23 +36,25 @@ class Parameter extends React.Component {
                 <td>{e.url}</td>
                 <td>{e.body}</td>
                 <td>{e.regex}</td>
-                <td><button name='remove' value={e.name} onClick={this.handleClick}>削除</button></td>
+                <td><div className='control'><button className='button is-small' name='remove' value={e.name} onClick={this.handleClick}>削除</button></div></td>
               </tr>
             )
           })}
           </tbody>
+            <tfoot className='field'>
+              <tr>
+                <td><input className='control input is-small' name="name" value={this.state.name} onChange={this.handleChange} type="text" /></td>
+                <td><select className='control select is-small' name="method" value={this.state.method} onChange={this.handleChange}>
+                  <option>GET</option>
+                  <option>POST</option>
+                </select></td>
+                <td><input className='control input is-small' name="url" value={this.state.url} onChange={this.handleChange} type="text" /></td>
+                <td><input className='control input is-small' name="body" value={this.state.body} onChange={this.handleChange} disabled={this.state.disabled} type="text" /></td>
+                <td><input className='control input is-small' name="regex" value={this.state.regex} onChange={this.handleChange} type="text" /></td>
+                <td><button className='control button is-small' name="parameter-set" onClick={this.handleClick}>確定</button></td>
+              </tr>
+            </tfoot>  
         </table>
-        <div id='ParameterSelector'>
-          name:<input name="name" value={this.state.name} onChange={this.handleChange} type="text" />
-            <select name="method" value={this.state.method} onChange={this.handleChange}>
-            <option>GET</option>
-            <option>POST</option>
-          </select>
-          url:<input name="url" value={this.state.url} onChange={this.handleChange} type="text" />
-          body:<input name="body" value={this.state.body} onChange={this.handleChange} disabled={this.state.disabled} type="text" />
-          regex:<input name="regex" value={this.state.regex} onChange={this.handleChange} type="text" />
-          <button name="parameter-set" onClick={this.handleClick}>確定</button>
-        </div>
       </div>
       )
     }

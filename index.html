@@ -3,67 +3,20 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>microbit:proxy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
   <link href="./node_modules/xterm/dist/xterm.css" rel="stylesheet" type="text/css">
   <style type="text/css">
-    body {
-      font-family: helvetica, sans-serif, arial;
-      font-size: 1em;
-    }
-    p {
-      color: blue;
-      line-height: 1.5;
+    #root {
+      width: 90%;
+      margin: auto;
     }
 
-    table {
-      margin: auto;
-      max-width: 800px;
-      width: auto;
-      table-layout: fixed;
-    }
-    table, td {
-      border: 1px solid #333;
-      overflow-wrap : break-word;
-    }
-
-    #container {
-      width: 800px;
-      min-height: 300px;
-      margin: auto;
-      display: flex;
-      flex-direction: column
-    }
-    
     #ParameterContainer {
       margin-bottom: 15px;
     }
-    #ParameterList {
-      margin-bottom: 15px;
-    }
-    #ParameterList .frame {
-      color: black;
-      padding: 2px;
-      min-width:60px
-    }
-    #ParameterItem {
-      display: flex;
-      flex-direction: row;
-      margin-bottom: 3px;
-    }
-    #ParameterItem:first-child {
-      margin-left: 6px;
-    }
-    #ParameterItem div {
-      flex: 1;
-      margin-right: 10px;
-    }
-    #ParameterItem span {
-      flex: none;
-    }
-    #ParameterItem span {
-      display: inline-block;
-    }
-
+    
     #ParameterSelector {
       flex: 1;
       margin: auto;
@@ -87,12 +40,20 @@
       margin-right: 10px;
     }
 
+    #TerminalSection {
+      width: 640px;
+      margin: auto;
+    }
+
     #TerminalContainer {
       flex: none;
-      width: 800px;
-      height: 450px;
+      height:320px;
       margin: 0 auto;
       padding: 2px;
+    }
+
+    #Connect {
+      margin: auto;
     }
 
     #FooterLogo {

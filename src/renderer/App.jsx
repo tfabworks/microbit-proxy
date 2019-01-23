@@ -15,6 +15,7 @@ class App extends React.Component {
     this.state = {
       ports: [],
       selected: '',
+      onlineStatus: false,
       parameters: [{
         name: 'jikoku',
         method: 'GET',
@@ -63,27 +64,63 @@ class App extends React.Component {
     }
   }
   componentDidMount() {
+    const onlineStatusHandler = () => {
+      this.setState({onlineStatus: navigator.onLine})
+    }
     this.term.open(document.getElementById('TerminalContainer'))
     this.term.fit();
     this.term.write('microbit-proxy $ ')
+    
+    onlineStatusHandler();
+    window.addEventListener('online', onlineStatusHandler)
+    window.addEventListener('offline', () => onlineStatusHandler)
   }
 
   render () {
     return (
-      <div id='container'>
+      <div className='container'>
+        <nav className="level">
+          <div className="level-item has-text-centered">
+            <div>
+              <p className="heading">Device</p>
+              <p className="title">3,456</p>
+            </div>
+          </div>
+          <div className="level-item has-text-centered">
+            <div>
+              <p className="heading">Internet</p>
+              <p className="title">{this.state.onlineStatus? 'オンライン': 'オフライン'}</p>
+            </div>
+          </div>
+          <div className="level-item has-text-centered">
+            <div>
+              <p className="heading">Received</p>
+              <p className="title">123</p>
+            </div>
+          </div>
+          <div className="level-item has-text-centered">
+            <div>
+              <p className="heading">Failed</p>
+              <p className="title">789</p>
+            </div>
+          </div>
+        </nav>
         <Parameter parameters={this.state.parameters} changeState={this.changeState} />
-        <div id='ConnectionSelector'>
-          <form>
-            <select name='com-port' value={this.state.selected} onChange={this.handleChange}>
-              {this.state.ports.map((p, i) => {
-                return <option key={i} value={p.comName}>{p.comName}</option>
-              })}
-            </select>
-            <input name="connect" type='button' value='Connect' onClick={this.handleClick} />
+        <div id='ConnectionSelector'></div>
+        <div id='TerminalSection'>
+          <div id="TerminalContainer"></div>
+          <form className='field' id="Connection">
+            <div className='control'>
+              <select className='select' value={this.state.selected} onChange={this.handleChange}>
+                {this.state.ports.map((p, i) => {
+                  return <option key={i} value={p.comName}>{p.comName}</option>
+                })}
+              </select> 
+              <input className='button' type='button' value='Connect' onClick={this.handleClick} />
+            </div>
           </form>
         </div>
-        <div id="TerminalContainer"></div>
-        <a href="https://tfabworks.com/">
+        <a href="https://tfabworks.com/microbit-proxy/" target='_blank'>
           <img id='FooterLogo' src="./static/logo.png"></img>
         </a>
       </div>

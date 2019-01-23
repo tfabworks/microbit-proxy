@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron')
+const { app, shell, BrowserWindow } = require('electron')
 const isWin = (process.platform === 'win32')
 
 let mainWindow
@@ -6,11 +6,17 @@ let mainWindow
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1024,
-    height: 768,
+    height: 784,
     center: true
   })
 
   mainWindow.loadFile('index.html')
+  
+  // a tag でリンクを開く時、デフォルトのブラウザで表示する
+  mainWindow.webContents.on('new-window', function (event, url) {
+    event.preventDefault();
+    shell.openExternal(url);
+  });
 
   if (process.env.NODE_ENV === 'dev') { mainWindow.webContents.openDevTools() }
 
