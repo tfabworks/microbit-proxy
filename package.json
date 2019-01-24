@@ -1,7 +1,7 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
@@ -28,6 +28,7 @@
     "bulma": "^0.7.2",
     "electron-json-storage": "^4.1.5",
     "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.11",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "serialport": "^7.0.2",

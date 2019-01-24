@@ -13,11 +13,14 @@ class App extends React.Component {
     Terminal.applyAddon(fit);
     this.term = new Terminal()
     this.state = {
+      port: null,
       ports: [],
       selected: '',
-      onlineStatus: false,
+      online: false,
+      successCnt: 0,
+      errorCnt: 0,
       parameters: [{
-        name: 'jikoku',
+        id: '1',
         method: 'GET',
         url: 'https://ntp-a1.nict.go.jp/cgi-bin/time',
         body: '',
@@ -26,7 +29,6 @@ class App extends React.Component {
     }
     storage.get('parameters', (error, data) => {
       if (error) throw error;
-      console.log(data)
       if (data.name) {
         this.setState({
           parameters: data
@@ -35,13 +37,14 @@ class App extends React.Component {
     });
     this.serial = new SerialPortWrapper()
 
-    this.serial.on('state', state => {
-      this.setState(before => {
-        return Object.assign(before, state)
-      })
+    this.serial.on('ports', ports => {
+      if (ports.length !== 0)
+        this.setState({selected: ports[0].comName})
+      this.setState({ports: ports})
     })
     this.serial.on('connected', port => {
       this.term.clear()
+      this.setState({port: port})
       this.terminalOut("Connected")
     })
     this.serial.on('receive', txt => {
@@ -49,6 +52,7 @@ class App extends React.Component {
     })
     this.serial.on('close', () => {
       this.term.clear()
+      this.setState({port: null})
       this.term.write("Disconnected.")
     })
 
@@ -58,14 +62,11 @@ class App extends React.Component {
     this.terminalOut = this.terminalOut.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handler = this.handler.bind(this)
-
-    if (process.env.STAGE === 'dev') {
-      this._debug()
-    }
   }
+
   componentDidMount() {
     const onlineStatusHandler = () => {
-      this.setState({onlineStatus: navigator.onLine})
+      this.setState({online: navigator.onLine})
     }
     this.term.open(document.getElementById('TerminalContainer'))
     this.term.fit();
@@ -73,7 +74,7 @@ class App extends React.Component {
     
     onlineStatusHandler();
     window.addEventListener('online', onlineStatusHandler)
-    window.addEventListener('offline', () => onlineStatusHandler)
+    window.addEventListener('offline', onlineStatusHandler)
   }
 
   render () {
@@ -83,25 +84,25 @@ class App extends React.Component {
           <div className="level-item has-text-centered">
             <div>
               <p className="heading">Device</p>
-              <p className="title">3,456</p>
+              <p className="title">{this.state.port ? '接続': '切断'}</p>
             </div>
           </div>
           <div className="level-item has-text-centered">
             <div>
               <p className="heading">Internet</p>
-              <p className="title">{this.state.onlineStatus? 'オンライン': 'オフライン'}</p>
+              <p className="title">{this.state.online? 'オンライン': 'オフライン'}</p>
             </div>
           </div>
           <div className="level-item has-text-centered">
             <div>
-              <p className="heading">Received</p>
-              <p className="title">123</p>
+              <p className="heading">Success</p>
+              <p className="title">{this.state.successCnt}</p>
             </div>
           </div>
           <div className="level-item has-text-centered">
             <div>
               <p className="heading">Failed</p>
-              <p className="title">789</p>
+              <p className="title">{this.state.errorCnt}</p>
             </div>
           </div>
         </nav>
@@ -111,7 +112,7 @@ class App extends React.Component {
           <div id="TerminalContainer"></div>
           <form className='field' id="Connection">
             <div className='control'>
-              <select className='select' value={this.state.selected} onChange={this.handleChange}>
+              <select className='select' name='com-port' value={this.state.selected} onChange={this.handleChange}>
                 {this.state.ports.map((p, i) => {
                   return <option key={i} value={p.comName}>{p.comName}</option>
                 })}
@@ -150,52 +151,66 @@ class App extends React.Component {
   }
 
   async handler(str) {
-    const t = str.split(':')
-    const key = t[0]
-    const serialNumber = t[1]
-    this.terminalOut(`${serialNumber}, Serial, Recieve: ${str}`)
-    const param = this.state.parameters.find(e => { return e.name == key })
-    if (param) {
-      if (param.method === "GET") {
-        this.terminalOut(`${serialNumber}, HTTP, Request: GET, ${param.url}`)
-        const resp = await fetch(param.url)
-        this.terminalOut(`${serialNumber}, HTTP, Response: ${resp.status}`)
-        this.serial.write("\r\n")
-        this.serial.write(`${serialNumber}\r\n`)
-        this.terminalOut(`${serialNumber}, Serial, Send: ${serialNumber}`)
-        let txt = await resp.text()
-        if (param.regex) txt = txt.match(new RegExp(param.regex))
-        this.serial.write(`${txt}\r\n`)
-        this.terminalOut(`${serialNumber}, Serial, Send: ${txt}`)
-      } else if (param.method === "POST") {
-        this.terminalOut(`${serialNumber}, HTTP, Request: POST, ${param.url}`)
-        const resp = await fetch(param.url, {
-          method: 'POST',
-          body: param.body,
-          timeout: 5000
-        })
-        this.terminalOut(`${serialNumber}, HTTP, Response: ${resp.status}`)
-        this.serial.write(`${serialNumber}\r\n`)
-        this.terminalOut(`${serialNumber}, Serial, Send, ${serialNumber}`)
-        let txt = await resp.text()
-        if (param.regex) txt = txt.match(new RegExp(param.regex))
-        this.serial.write(`${txt}\r\n`)
-        this.terminalOut(`${serialNumber}, Serial, Send, ${txt}`)
-      } else {
-        console.warn("Error: undefined http method.")
-      }
-    } else {
-      this.terminalOut("Request parameter is not defined.")
+    console.log(str)
+    let received
+    try {
+      received = JSON.parse(str)
+    } catch (e) {
+      console.warn(e.message)
+      this._error('json string is broken.')
+      return
     }
+    this.terminalOut(`SerialNo:${received.s.toString()} ID: ${ received.n } VALUE:${received.v.toString()}`)
+    const found = this.state.parameters.find((el) => {
+      return el.id === received.n
+    })
+    if (found === undefined) {
+      console.warn(`ID:${received.n} is not set.`)
+      this._error(`ID:${received.n} is not set.`)
+    }
+    
+    const status = await fetch(found.url, {
+      method: found.method,
+      body: (found.method === 'POST')? received.v : undefined
+    }).then(response => {
+      if (!response.ok) {
+        this._error(`http response error: ${response.statusText}`)
+        return new Promise.resolve(new Error())
+      }
+      return response.text()
+    })
+    if (status instanceof Error) 
+      return
+    let txt
+    if (found.regex) {
+      const matches = (new RegExp(found.regex)).exec(status)
+      if (matches === null)
+        this._error('http response is not contains REGEX filtered text.')
+      txt = matches.join("\r\n")
+    } else {
+      txt = status
+    }
+
+    const send = JSON.stringify({ "n": txt, "v": received.s})
+    this.serial.write(send)
+    this.terminalOut(send)
+
+    this.setState(before => {
+      return {successCnt: before.successCnt + 1}
+    })
   }
 
   terminalOut(str) {
-    this.term.writeln(str)
+    const d = new Date()
+    const dateStr = d.toLocaleDateString('ja-JP')
+    const timeStr = d.toLocaleTimeString('ja-JP')
+    this.term.writeln(`${dateStr} ${timeStr} ${str}`)
   }
-  
-  _debug () {
-    setInterval(() => {
-      console.log(this.state)
-    }, 3000)
+
+  _error(str) {
+    this.setState(before => {
+      return { errorCnt: before.errorCnt + 1 }
+    })
+    this.terminalOut(`Error: ${str}`)
   }
 }
