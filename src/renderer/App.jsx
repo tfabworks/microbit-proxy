@@ -16,7 +16,6 @@ class App extends React.Component {
       port: null,
       ports: [],
       selected: '',
-      online: false,
       successCnt: 0,
       errorCnt: 0,
       parameters: [{
@@ -65,16 +64,9 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    const onlineStatusHandler = () => {
-      this.setState({online: navigator.onLine})
-    }
     this.term.open(document.getElementById('TerminalContainer'))
     this.term.fit();
     this.term.write('microbit-proxy $ ')
-    
-    onlineStatusHandler();
-    window.addEventListener('online', onlineStatusHandler)
-    window.addEventListener('offline', onlineStatusHandler)
   }
 
   render () {
@@ -85,12 +77,6 @@ class App extends React.Component {
             <div>
               <p className="heading">Device</p>
               <p className="title">{this.state.port ? '接続': '切断'}</p>
-            </div>
-          </div>
-          <div className="level-item has-text-centered">
-            <div>
-              <p className="heading">Internet</p>
-              <p className="title">{this.state.online? 'オンライン': 'オフライン'}</p>
             </div>
           </div>
           <div className="level-item has-text-centered">
@@ -162,7 +148,7 @@ class App extends React.Component {
     }
     this.terminalOut(`SerialNo:${received.s.toString()} ID: ${ received.n } VALUE:${received.v.toString()}`)
     const found = this.state.parameters.find((el) => {
-      return el.id === received.n
+      return el.id == received.n
     })
     if (found === undefined) {
       console.warn(`ID:${received.n} is not set.`)
@@ -192,7 +178,7 @@ class App extends React.Component {
     }
 
     const send = JSON.stringify({ "n": txt, "v": received.s})
-    this.serial.write(send)
+    this.serial.write(send + '\r\n')
     this.terminalOut(send)
 
     this.setState(before => {

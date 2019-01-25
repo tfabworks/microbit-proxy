@@ -1,14 +1,14 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
     "start": "NODE_ENV=dev electron .",
     "postinstall": "electron-builder install-app-deps",
     "build": "standard src --fix && babel src --out-dir dist",
-    "dist": "electron-builder -w"
+    "dist": "electron-builder -m"
   },
   "author": {
     "name": "Saggggo",
@@ -46,7 +46,7 @@
       "index.html"
     ],
     "mac": {
-      "icon": "build/icons/icon.icns",
+      "icon": "build/icons/microbit-proxy.icns",
       "category": "education"
     },
     "win": {
