@@ -1,14 +1,14 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
     "start": "NODE_ENV=dev electron .",
     "postinstall": "electron-builder install-app-deps",
     "build": "standard src --fix && babel src --out-dir dist",
-    "dist": "electron-builder -m"
+    "dist": "electron-builder -wm"
   },
   "author": {
     "name": "Saggggo",
