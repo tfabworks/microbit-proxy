@@ -11,12 +11,12 @@ function createWindow () {
   })
 
   mainWindow.loadFile('index.html')
-  
+
   // a tag でリンクを開く時、デフォルトのブラウザで表示する
   mainWindow.webContents.on('new-window', function (event, url) {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
+    event.preventDefault()
+    shell.openExternal(url)
+  })
 
   if (process.env.NODE_ENV === 'dev') { mainWindow.webContents.openDevTools() }
 
@@ -30,8 +30,8 @@ function createWindow () {
   if (isWin) {
     mainWindow.on('app-command', (e, cmd) => {
       if (cmd === 'browser-backward' && mainWindow.webContents.canGoBack()) {
-          mainWindow.webContents.goBack()
-        }
+        mainWindow.webContents.goBack()
+      }
     })
   }
 }

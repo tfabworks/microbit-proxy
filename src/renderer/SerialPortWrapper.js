@@ -9,23 +9,23 @@ class SerialPortWrapper extends EventEmitter {
     this.port = null
     this.ports = []
     this._updatePortList()
-    this.portListListen();
+    this.portListListen()
   }
-  
-  portListListen() {
-    setTimeout( () => {
+
+  portListListen () {
+    setTimeout(() => {
       this._updatePortList()
-      this.portListListen();
+      this.portListListen()
     }, 3000)
   }
 
-  _updatePortList() {
+  _updatePortList () {
     return SerialPort.list((err, ports) => {
       if (err) {
         console.warn(err.message)
         return
       }
-      
+
       if (ports.length === 0) {
         console.log('No ports discovered')
       }
@@ -35,7 +35,7 @@ class SerialPortWrapper extends EventEmitter {
       if (ho.length !== 0) {
         this.emit('ports', ports)
       }
-      this.ports = ports 
+      this.ports = ports
     })
   }
 
@@ -80,10 +80,7 @@ class SerialPortWrapper extends EventEmitter {
     // this.emit('connected', p)
   }
 
-  write(text) {
-    if (this.port === null)
-      console.warn('port is not connected.')
-    else
-      this.port.write(text)
+  write (text) {
+    if (this.port === null) { console.warn('port is not connected.') } else { this.port.write(text) }
   }
 }
