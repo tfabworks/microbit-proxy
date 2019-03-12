@@ -19,20 +19,20 @@
     "babel-core": "^6.26.3",
     "babel-preset-react": "^6.24.1",
     "babel-preset-env": "^1.7.0",
-    "electron": "^3.0.10",
-    "electron-builder": "^20.38.0",
+    "electron": "^4.0.8",
+    "electron-builder": "^20.39.0",
     "standard": "^12.0.1"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "bulma": "^0.7.2",
-    "electron-json-storage": "^4.1.5",
+    "bulma": "^0.7.4",
+    "electron-json-storage": "^4.1.6",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.11",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "serialport": "^7.0.2",
-    "xterm": "^3.11.0"
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "serialport": "^7.1.4",
+    "xterm": "^3.12.0"
   },
   "build": {
     "productName": "microbit-proxy",
@@ -57,10 +57,9 @@
       ]
     },
     "linux": {
-      "icon": "build/icons",
+      "icon": "build/icons/microbit-proxy.png",
       "target": [
-        "deb",
-        "rpm"
+        "deb"
       ],
       "category": "Education"
     }
