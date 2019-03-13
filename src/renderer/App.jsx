@@ -7,7 +7,7 @@ import * as fit from 'xterm/lib/addons/fit/fit'
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
-import {FooterLogo} from './component/etc'
+import {FooterLogo, PortSelector} from './component/etc'
 
 export default
 class App extends React.Component {
@@ -57,10 +57,8 @@ class App extends React.Component {
       this.term.write('Disconnected.')
     })
 
-    this.handleClick = this.handleClick.bind(this)
     this.changeState = this.changeState.bind(this)
     this.terminalOut = this.terminalOut.bind(this)
-    this.handleChange = this.handleChange.bind(this)
     this.handler = this.handler.bind(this)
   }
 
@@ -78,36 +76,12 @@ class App extends React.Component {
         <div id='ConnectionSelector' />
         <div id='TerminalSection'>
           <div id='TerminalContainer' />
-          <form className='field' id='Connection'>
-            <div className='control'>
-              <select className='select' name='com-port' value={this.state.selected} onChange={this.handleChange}>
-                {this.state.ports.map((p, i) => {
-                  return <option key={i} value={p.comName}>{p.comName}</option>
-                })}
-              </select>
-              <input className='button' type='button' value='Connect' onClick={this.handleClick} />
-            </div>
-          </form>
+          <PortSelector serial={this.serial} changeSuperState={this.changeState}
+                                  selected={this.state.selected} ports={this.state.ports}/>
         </div>
         <FooterLogo />
       </div>
     )
-  }
-
-  handleChange (e) {
-    const name = e.target.name
-    const value = e.target.value
-    switch (name) {
-      case 'com-port':
-        this.setState({ selected: value })
-        break
-      default:
-        console.log(e)
-    }
-  }
-
-  handleClick (e) {
-    this.serial.connectPort(this.state.selected)
   }
 
   changeState (name, value) {
