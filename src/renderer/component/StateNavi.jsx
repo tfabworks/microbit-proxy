@@ -35,7 +35,7 @@ class StateNavi extends React.Component {
 }
 
 StateNavi.propTypes = {
-  port: PropTypes.func,
+  port: PropTypes.object,
   successCnt: PropTypes.number.isRequired,
   errorCnt: PropTypes.number.isRequired
 }

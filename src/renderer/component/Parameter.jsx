@@ -28,7 +28,7 @@ class Parameter extends React.Component {
           <tbody>
             {this.props.parameters.map((e, i) => {
               return (
-                <tr>
+                <tr key={i}>
                   <td>{e.id}</td>
                   <td>{e.method}</td>
                   <td className='word-break-all'>{e.url}</td>

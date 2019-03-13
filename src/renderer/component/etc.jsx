@@ -8,20 +8,22 @@ export function FooterLogo() {
 }
 
 export class PortSelector extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
+    this.comName = ''
+    this.state = {
+      selected: ''
+    }
     this.handleChange = this.handleChange.bind(this)
     this.handleClick = this.handleClick.bind(this)
-    const selected = this.port ? this.port.comName : (this.ports ? this.ports[0].comName : '')
-    this.state = {
-      selected: selected
-    }
   }
+  
   render() {
+    this.comName = this.state.selected || this.props.port && this.props.port.comName || (this.props.ports.length > 0 ? this.props.ports[0].comName : '')
     return (
       <form className='field' id='Connection'>
         <div className='control'>
-          <select className='select' name='com-port' value={this.state.selected} onChange={this.handleChange}>
+          <select className='select' name='com-port' value={this.comName} onChange={this.handleChange}>
             {this.props.ports.map((p, i) => {
               return <option key={i} value={p.comName}>{p.comName}</option>
             })}
@@ -32,7 +34,7 @@ export class PortSelector extends React.Component {
   }
 
   handleClick (e) {
-    this.props.serial.connectPort(this.state.selected)
+    this.props.serial.connectPort(this.comName)
   }
 
   handleChange (e) {

@@ -18,5 +18,5 @@ class Term extends React.Component {
 }
 
 Term.propTypes = {
-  term: PropTypes.func.isRequired
+  term: PropTypes.object.isRequired
 }
