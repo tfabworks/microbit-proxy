@@ -24,17 +24,11 @@ class App extends React.Component {
       selected: '',
       successCnt: 0,
       errorCnt: 0,
-      parameters: [{
-        id: '1',
-        method: 'GET',
-        url: 'https://ntp-a1.nict.go.jp/cgi-bin/time',
-        body: '',
-        regex: '\\d+:\\d+:\\d+'
-      }]
+      parameters: []
     }
     storage.get('parameters', (error, data) => {
       if (error) throw error
-      if (data.name) {
+      if (data) {
         this.setState({
           parameters: data
         })
