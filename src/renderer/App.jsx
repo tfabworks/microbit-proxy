@@ -2,19 +2,22 @@ import React from 'react'
 import fetch from 'isomorphic-fetch'
 import storage from 'electron-json-storage'
 import SerialPortWrapper from './SerialPortWrapper'
+
 import { Terminal } from 'xterm'
 import * as fit from 'xterm/lib/addons/fit/fit'
+Terminal.applyAddon(fit)
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
 import {FooterLogo, PortSelector} from './component/etc'
+import Term from './component/Terminal'
 
 export default
 class App extends React.Component {
   constructor (props) {
     super(props)
-    Terminal.applyAddon(fit)
     this.term = new Terminal()
+    this.serial = new SerialPortWrapper()
     this.state = {
       port: null,
       ports: [],
@@ -37,7 +40,6 @@ class App extends React.Component {
         })
       }
     })
-    this.serial = new SerialPortWrapper()
 
     this.serial.on('ports', ports => {
       if (ports.length !== 0) { this.setState({selected: ports[0].comName}) }
@@ -58,14 +60,6 @@ class App extends React.Component {
     })
 
     this.changeState = this.changeState.bind(this)
-    this.terminalOut = this.terminalOut.bind(this)
-    this.handler = this.handler.bind(this)
-  }
-
-  componentDidMount () {
-    this.term.open(document.getElementById('TerminalContainer'))
-    this.term.fit()
-    this.term.write('microbit-proxy $ ')
   }
 
   render () {
@@ -73,12 +67,9 @@ class App extends React.Component {
       <div className='container'>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
         <Parameter parameters={this.state.parameters} changeState={this.changeState} />
-        <div id='ConnectionSelector' />
-        <div id='TerminalSection'>
-          <div id='TerminalContainer' />
-          <PortSelector serial={this.serial} changeSuperState={this.changeState}
+        <Term term={this.term} />
+        <PortSelector serial={this.serial} changeSuperState={this.changeState}
                                   selected={this.state.selected} ports={this.state.ports}/>
-        </div>
         <FooterLogo />
       </div>
     )
