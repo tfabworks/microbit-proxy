@@ -23,8 +23,6 @@ import StateNavi from './component/StateNavi'
 import {FooterLogo, PortSelector} from './component/etc'
 import Term from './component/Terminal'
 
-
-
 export default
 class App extends React.Component {
   constructor (props) {
