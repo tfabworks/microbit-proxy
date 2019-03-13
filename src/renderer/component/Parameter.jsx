@@ -1,4 +1,5 @@
-const React = require('react')
+import React from 'react'
+import PropTypes from 'prop-types'
 
 export default
 class Parameter extends React.Component {
@@ -13,7 +14,6 @@ class Parameter extends React.Component {
 
     this.handleChange = this.handleChange.bind(this)
     this.handleClick = this.handleClick.bind(this)
-    this.stateRefresh = this.stateRefresh.bind(this)
   }
 
   render () {
@@ -78,14 +78,14 @@ class Parameter extends React.Component {
       }
       if (!params.find(e => e.id == p.id)) {
         params.push(p)
-        this.props.changeState('parameters', params)
+        this.props.updateParameters(params)
         this.stateRefresh()
       } else {
         console.log('Name column must be unique.')
       }
     } else if (name === 'remove') {
       const value = target.value
-      this.props.changeState('parameters', params.filter(v => { return v.id !== value }))
+      this.props.updateParameters(params.filter(v => { return v.id !== value }))
     }
   }
 
@@ -97,4 +97,9 @@ class Parameter extends React.Component {
       regex: ''
     })
   }
+}
+
+Parameter.propTypes = {
+  parameters: PropTypes.array.isRequired,
+  updateParameters: PropTypes.func.isRequired
 }

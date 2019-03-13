@@ -64,14 +64,14 @@ class App extends React.Component {
       this.term.write('Disconnected.')
     })
 
-    this.changeState = this.changeState.bind(this)
+    this.updateParameters = this.updateParameters.bind(this)
   }
 
   render () {
     return (
       <div className='container'>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
-        <Parameter parameters={this.state.parameters} changeState={this.changeState} />
+        <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
         <Term term={this.term} />
         <PortSelector serial={this.serial} port={this.state.port} ports={this.state.ports}/>
         <FooterLogo />
@@ -79,10 +79,9 @@ class App extends React.Component {
     )
   }
 
-  changeState (name, value) {
-    this.setState({
-      [name]: value
-    })
+  updateParameters(params) {
+    storage.set('parameters', params)
+    this.setState({parameters: params})
   }
 
   async handler (str) {
