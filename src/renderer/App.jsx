@@ -5,23 +5,35 @@ import SerialPortWrapper from './SerialPortWrapper'
 
 import { Terminal } from 'xterm'
 import * as fit from 'xterm/lib/addons/fit/fit'
-Terminal.applyAddon(fit)
+class LogTerminal extends Terminal {
+  constructor() {
+    super()
+  }
+  logging (str) {
+    const d = new Date()
+    const dateStr = d.toLocaleDateString('ja-JP')
+    const timeStr = d.toLocaleTimeString('ja-JP')
+    this.writeln(`${dateStr} ${timeStr} ${str}`)
+  }
+}
+LogTerminal.applyAddon(fit)
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
 import {FooterLogo, PortSelector} from './component/etc'
 import Term from './component/Terminal'
 
+
+
 export default
 class App extends React.Component {
   constructor (props) {
     super(props)
-    this.term = new Terminal()
+    this.term = new LogTerminal()
     this.serial = new SerialPortWrapper()
     this.state = {
       port: null,
       ports: [],
-      selected: '',
       successCnt: 0,
       errorCnt: 0,
       parameters: []
@@ -36,13 +48,12 @@ class App extends React.Component {
     })
 
     this.serial.on('ports', ports => {
-      if (ports.length !== 0) { this.setState({selected: ports[0].comName}) }
       this.setState({ports: ports})
     })
     this.serial.on('connected', port => {
       this.term.clear()
       this.setState({port: port})
-      this.terminalOut('Connected')
+      this.term.logging('Connected')
     })
     this.serial.on('receive', txt => {
       this.handler(txt)
@@ -62,8 +73,7 @@ class App extends React.Component {
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
         <Parameter parameters={this.state.parameters} changeState={this.changeState} />
         <Term term={this.term} />
-        <PortSelector serial={this.serial} changeSuperState={this.changeState}
-                                  selected={this.state.selected} ports={this.state.ports}/>
+        <PortSelector serial={this.serial} port={this.state.port} ports={this.state.ports}/>
         <FooterLogo />
       </div>
     )
@@ -85,7 +95,7 @@ class App extends React.Component {
       this._error('json string is broken.')
       return
     }
-    this.terminalOut(`SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
+    this.term.logging(`SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
     const found = this.state.parameters.find((el) => {
       return el.id == received.n
     })
@@ -116,24 +126,18 @@ class App extends React.Component {
 
     const send = txt
     this.serial.write(send + '\r\n')
-    this.terminalOut(send)
+    this.term.logging(send)
 
     this.setState(before => {
       return {successCnt: before.successCnt + 1}
     })
   }
 
-  terminalOut (str) {
-    const d = new Date()
-    const dateStr = d.toLocaleDateString('ja-JP')
-    const timeStr = d.toLocaleTimeString('ja-JP')
-    this.term.writeln(`${dateStr} ${timeStr} ${str}`)
-  }
-
+  
   _error (str) {
     this.setState(before => {
       return { errorCnt: before.errorCnt + 1 }
     })
-    this.terminalOut(`Error: ${str}`)
+    this.term.logging(`Error: ${str}`)
   }
 }

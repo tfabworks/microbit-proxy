@@ -12,12 +12,16 @@ export class PortSelector extends React.Component {
     super()
     this.handleChange = this.handleChange.bind(this)
     this.handleClick = this.handleClick.bind(this)
+    const selected = this.port ? this.port.comName : (this.ports ? this.ports[0].comName : '')
+    this.state = {
+      selected: selected
+    }
   }
   render() {
     return (
       <form className='field' id='Connection'>
         <div className='control'>
-          <select className='select' name='com-port' value={this.props.selected} onChange={this.handleChange}>
+          <select className='select' name='com-port' value={this.state.selected} onChange={this.handleChange}>
             {this.props.ports.map((p, i) => {
               return <option key={i} value={p.comName}>{p.comName}</option>
             })}
@@ -28,17 +32,16 @@ export class PortSelector extends React.Component {
   }
 
   handleClick (e) {
-    this.props.serial.connectPort(this.props.selected)
+    this.props.serial.connectPort(this.state.selected)
   }
 
   handleChange (e) {
-    this.props.changeSuperState('selected', e.target.value)
+    this.setState({'selected': e.target.value})
   }
 }
 
 PortSelector.propTypes = {
+  port: PropTypes.object,
   ports: PropTypes.array.isRequired,
-  selected: PropTypes.string.isRequired,
-  serial: PropTypes.object.isRequired,
-  changeSuperState: PropTypes.func.isRequired
+  serial: PropTypes.object.isRequired
 }

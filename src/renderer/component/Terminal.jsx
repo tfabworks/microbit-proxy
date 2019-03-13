@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import {ipcRenderer} from 'electron'
 
 export default
 class Term extends React.Component {

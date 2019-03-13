@@ -11,6 +11,8 @@ function createWindow () {
   })
 
   mainWindow.loadFile('index.html')
+  if (process.env.NODE_ENV === 'dev')
+                mainWindow.webContents.openDevTools()
 
   // a tag でリンクを開く時、デフォルトのブラウザで表示する
   mainWindow.webContents.on('new-window', function (event, url) {
@@ -18,15 +20,13 @@ function createWindow () {
     shell.openExternal(url)
   })
 
-  if (process.env.NODE_ENV === 'dev') { mainWindow.webContents.openDevTools() }
-
-  // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
   })
+
   if (isWin) {
     mainWindow.on('app-command', (e, cmd) => {
       if (cmd === 'browser-backward' && mainWindow.webContents.canGoBack()) {
