@@ -1,5 +1,6 @@
 const { app, shell, BrowserWindow } = require('electron')
 const isWin = (process.platform === 'win32')
+const config = require('../config')
 
 let mainWindow
 
@@ -7,7 +8,8 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 784,
-    center: true
+    center: true,
+    title: config.title,
   })
 
   mainWindow.loadFile('index.html')
