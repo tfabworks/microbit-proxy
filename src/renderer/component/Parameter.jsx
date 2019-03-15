@@ -41,7 +41,7 @@ class Parameter extends React.Component {
   render () {
     return (
       <div id='ParameterContainer'>
-        <table className='table'>
+        <table className='table is-hostriped is-hoverable is-fullwidth'>
           <thead>
             <tr>
               <th>ID</th><th>method</th><th>URL</th><th>regex</th><th />

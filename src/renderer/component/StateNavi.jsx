@@ -10,7 +10,8 @@ class StateNavi extends React.Component {
 
   render () {
     return (
-        <nav className='level'>
+      <section class="hero is-primary">
+        <nav className='hero-body level'>
           <div className='level-item has-text-centered'>
             <div>
               <p className='heading'>Device</p>
@@ -30,6 +31,7 @@ class StateNavi extends React.Component {
             </div>
           </div>
         </nav>
+      </section>
     )
   }
 }

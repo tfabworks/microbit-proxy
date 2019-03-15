@@ -9,14 +9,15 @@
   <link href="./node_modules/xterm/dist/xterm.css" rel="stylesheet" type="text/css">
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   <style type="text/css">
+    ::-webkit-scrollbar {
+      display: none;
+    }
     .word-break-all {
       word-break: break-all;
     }
 
-    #root {
-      width: 90%;
-      margin: auto;
-      margin-top: 50px;
+    #StateNavi {
+      margin-bottom: 20px;
     }
 
     #ParameterContainer {
@@ -26,7 +27,8 @@
     #TerminalContainer {
       flex: none;
       height:320px;
-      margin: 0 auto;
+      width: 640px;
+      margin: auto;
       padding: 2px;
     }
 

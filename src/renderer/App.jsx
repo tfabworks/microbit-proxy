@@ -66,12 +66,14 @@ class App extends React.Component {
 
   render () {
     return (
-      <div className='container'>
+      <div>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
-        <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
-        <Term term={this.term} />
-        <PortSelector port={this.state.port} ports={this.state.ports}/>
-        <FooterLogo />
+        <div className='container'>
+          <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
+          <Term term={this.term} />
+          <PortSelector port={this.state.port} ports={this.state.ports}/>
+          <FooterLogo />
+        </div>
       </div>
     )
   }
