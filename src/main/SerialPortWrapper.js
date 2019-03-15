@@ -12,7 +12,8 @@ class SerialPortWrapper {
     this._updatePortList()
     this.portListListen()
     ipcMain.on('serial:connect', (ev, comName) => {
-      this.connectPort(comName)
+      if (this.port === null)
+        this.connectPort(comName)
     })
     ipcMain.on('serial:write', (ev, line) => {
       this.write(line)
@@ -55,6 +56,7 @@ class SerialPortWrapper {
   }
 
   connectPort (comName) {
+    let intervalCleanFlag
     if (this.port !== null && this.port.isOpen) {
       this.port.close(err => {
         if (err) console.warn(err)
@@ -71,7 +73,7 @@ class SerialPortWrapper {
     })
     let chars = ''
     if (process.env.NODE_ENV === 'dev') {
-      setInterval(() => {
+      intervalCleanFlag = setInterval(() => {
         const j = JSON.stringify({
           t: Date.now(),
           s: Math.floor(Math.random() * Math.floor(99999)),
@@ -97,6 +99,9 @@ class SerialPortWrapper {
       this.senders.forEach(sender => {
         sender.send('serial:close')
       })
+      this.port = null
+      if (process.env.NODE_ENV === 'dev')
+        clearInterval(intervalCleanFlag)
     })
     this.port = p
     // this.emit('connected', p)
