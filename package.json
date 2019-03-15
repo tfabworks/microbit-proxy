@@ -8,7 +8,8 @@
     "start": "NODE_ENV=dev electron .",
     "postinstall": "electron-builder install-app-deps",
     "build": "standard src --fix && babel src --out-dir dist",
-    "dist": "electron-builder -wm"
+    "dist": "electron-builder -w",
+    "clean": "rm -rf ./node_modules/ && rm -rf ./build/"
   },
   "author": {
     "name": "Saggggo",

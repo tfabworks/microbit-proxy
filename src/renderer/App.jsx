@@ -2,7 +2,7 @@ import React from 'react'
 import fetch from 'isomorphic-fetch'
 import storage from 'electron-json-storage'
 import {ipcRenderer} from 'electron'
-import {LogTerminal} from '../util'
+import {LogTerminal} from './util'
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'

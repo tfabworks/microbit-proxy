@@ -17,6 +17,7 @@ function createWindow () {
     width: 1024,
     height: 784,
     center: true,
+    resizable: false,
     // title: config.title,
     autoHideMenuBar: true,
   })
