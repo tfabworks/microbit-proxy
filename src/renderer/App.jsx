@@ -2,21 +2,7 @@ import React from 'react'
 import fetch from 'isomorphic-fetch'
 import storage from 'electron-json-storage'
 import {ipcRenderer} from 'electron'
-
-import { Terminal } from 'xterm'
-import * as fit from 'xterm/lib/addons/fit/fit'
-class LogTerminal extends Terminal {
-  constructor() {
-    super()
-  }
-  logging (str) {
-    const d = new Date()
-    const dateStr = d.toLocaleDateString('ja-JP')
-    const timeStr = d.toLocaleTimeString('ja-JP')
-    this.writeln(`${dateStr} ${timeStr} ${str}`)
-  }
-}
-LogTerminal.applyAddon(fit)
+import {LogTerminal} from '../util'
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
@@ -28,7 +14,7 @@ export default
 class App extends React.Component {
   constructor (props) {
     super(props)
-    this.term = new LogTerminal()
+    this.term = LogTerminal()
     this.state = {
       port: null,
       ports: [],
@@ -67,6 +53,15 @@ class App extends React.Component {
   render () {
     return (
       <div>
+        <div id="overlay">
+          <div id="overlay-button">
+          <a href={"https://mbitc.net/my/?uuid=" + this.props.config.uuid} target='_blank'>
+            <span className='icon'>
+              <i className="fas fa-2x fa-plug"></i>
+            </span>
+          </a>
+          </div>
+        </div>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
         <div className='container'>
           <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
