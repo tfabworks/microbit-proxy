@@ -20,8 +20,9 @@ LogTerminal.applyAddon(fit)
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
-import {FooterLogo, PortSelector} from './component/etc'
+import {FooterLogo} from './component/etc'
 import Term from './component/Terminal'
+import PortSelector from './component/PortSelector'
 
 export default
 class App extends React.Component {
@@ -128,7 +129,6 @@ class App extends React.Component {
     })
   }
 
-  
   _error (str) {
     this.setState(before => {
       return { errorCnt: before.errorCnt + 1 }

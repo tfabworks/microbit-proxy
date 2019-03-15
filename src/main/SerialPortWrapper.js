@@ -2,6 +2,7 @@ import SerialPort from 'serialport'
 import _ from 'lodash'
 import {ipcMain} from 'electron'
 
+// SerialPortをWrapしたクラス
 export default
 class SerialPortWrapper {
   constructor () {
@@ -18,6 +19,7 @@ class SerialPortWrapper {
     })
   }
 
+  // ひとつのシリアルポートラッパーに対して複数のListenerを登録できる
   append(sender) {
     sender.send('serial:ports', this.ports)
     this.senders.push(sender)
