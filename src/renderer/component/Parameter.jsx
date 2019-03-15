@@ -39,7 +39,6 @@ class Parameter extends React.Component {
   }
 
   render () {
-    console.log(this.state)
     return (
       <div id='ParameterContainer'>
         <table className='table'>

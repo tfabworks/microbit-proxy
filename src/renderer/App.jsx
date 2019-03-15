@@ -1,7 +1,7 @@
 import React from 'react'
 import fetch from 'isomorphic-fetch'
 import storage from 'electron-json-storage'
-import SerialPortWrapper from './SerialPortWrapper'
+import {ipcRenderer} from 'electron'
 
 import { Terminal } from 'xterm'
 import * as fit from 'xterm/lib/addons/fit/fit'
@@ -28,7 +28,6 @@ class App extends React.Component {
   constructor (props) {
     super(props)
     this.term = new LogTerminal()
-    this.serial = new SerialPortWrapper()
     this.state = {
       port: null,
       ports: [],
@@ -44,24 +43,23 @@ class App extends React.Component {
         })
       }
     })
-
-    this.serial.on('ports', ports => {
+    ipcRenderer.on('serial:ports', (_, ports) => {
       this.setState({ports: ports})
     })
-    this.serial.on('connected', port => {
+    ipcRenderer.on('serial:connected', (_, port) => {
       this.term.clear()
       this.setState({port: port})
       this.term.logging('Connected')
     })
-    this.serial.on('receive', txt => {
+    ipcRenderer.on('serial:receive', (_, txt) => {
       this.handler(txt)
     })
-    this.serial.on('close', () => {
+    ipcRenderer.on('serial:close', () => {
       this.term.clear()
       this.setState({port: null})
       this.term.write('Disconnected.')
     })
-
+    ipcRenderer.send('ready')
     this.updateParameters = this.updateParameters.bind(this)
   }
 
@@ -71,7 +69,7 @@ class App extends React.Component {
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
         <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
         <Term term={this.term} />
-        <PortSelector serial={this.serial} port={this.state.port} ports={this.state.ports}/>
+        <PortSelector port={this.state.port} ports={this.state.ports}/>
         <FooterLogo />
       </div>
     )
@@ -122,7 +120,7 @@ class App extends React.Component {
     }
 
     const send = txt
-    this.serial.write(send + '\r\n')
+    ipcRenderer.send('serial:write', send + '\r\n')
     this.term.logging(send)
 
     this.setState(before => {

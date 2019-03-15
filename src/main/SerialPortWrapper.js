@@ -1,15 +1,26 @@
 import SerialPort from 'serialport'
-import EventEmitter from 'events'
 import _ from 'lodash'
+import {ipcMain} from 'electron'
 
 export default
-class SerialPortWrapper extends EventEmitter {
+class SerialPortWrapper {
   constructor () {
-    super()
+    this.senders = []
     this.port = null
     this.ports = []
     this._updatePortList()
     this.portListListen()
+    ipcMain.on('serial:connect', (ev, comName) => {
+      this.connectPort(comName)
+    })
+    ipcMain.on('serial:write', (ev, line) => {
+      this.write(line)
+    })
+  }
+
+  append(sender) {
+    sender.send('serial:ports', this.ports)
+    this.senders.push(sender)
   }
 
   portListListen () {
@@ -33,7 +44,9 @@ class SerialPortWrapper extends EventEmitter {
       const seki = _.intersectionWith(this.ports, ports, _.isEqual) // A かつ B 両方が真 (論理積)
       const ho = _.differenceWith(wa, seki, _.isEqual) // A または B のいずれかである
       if (ho.length !== 0) {
-        this.emit('ports', ports)
+        this.senders.forEach(sender => {
+          sender.send('serial:ports', ports)
+        })
       }
       this.ports = ports
     })
@@ -49,7 +62,10 @@ class SerialPortWrapper extends EventEmitter {
       baudRate: 115200
     })
     p.on('open', () => {
-      this.emit('connected', p)
+      this.senders.forEach(sender => {
+        sender.send('serial:connected', p)
+      })
+      
     })
     let chars = ''
     if (process.env.NODE_ENV === 'dev') {
@@ -60,7 +76,9 @@ class SerialPortWrapper extends EventEmitter {
           n: '1',
           v: Math.floor(Math.random() * Math.floor(99999999))
         })
-        this.emit('receive', j)
+        this.senders.forEach(sender => {
+          sender.send('serial:receive', j)
+        })
       }, 3000)
     }
 
@@ -68,13 +86,15 @@ class SerialPortWrapper extends EventEmitter {
       const char = p.read().toString()
       if (char === '\r\n') {
         let line = chars.trim()
-        this.emit('receive', line)
+        this.serial.send('serial:receive', line)
         chars = ''
       }
       chars += char
     })
     p.on('close', () => {
-      this.emit('close')
+      this.senders.forEach(sender => {
+        sender.send('serial:close')
+      })
     })
     this.port = p
     // this.emit('connected', p)

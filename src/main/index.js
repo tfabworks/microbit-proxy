@@ -1,8 +1,16 @@
 const { app, shell, BrowserWindow } = require('electron')
+import SerialPortWrapper from './SerialPortWrapper'
+import { ipcMain } from 'electron';
+
 const isWin = (process.platform === 'win32')
 const config = require('../config')
 
 let mainWindow
+let serial = new SerialPortWrapper()
+
+ipcMain.on('ready', (ev) => {
+  serial.append(ev.sender)
+})
 
 function createWindow () {
   mainWindow = new BrowserWindow({
@@ -21,7 +29,7 @@ function createWindow () {
     event.preventDefault()
     shell.openExternal(url)
   })
-
+  
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import {ipcRenderer} from 'electron'
 
 export function FooterLogo() {
     return <a href='https://tfabworks.com/microbit-proxy/' target='_blank'>
@@ -34,7 +35,7 @@ export class PortSelector extends React.Component {
   }
 
   handleClick (e) {
-    this.props.serial.connectPort(this.comName)
+    ipcRenderer.send('serial:connect', this.comName)
   }
 
   handleChange (e) {
@@ -45,5 +46,4 @@ export class PortSelector extends React.Component {
 PortSelector.propTypes = {
   port: PropTypes.object,
   ports: PropTypes.array.isRequired,
-  serial: PropTypes.object.isRequired
 }
