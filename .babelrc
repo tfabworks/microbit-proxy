@@ -1,6 +1,13 @@
 {
   "sourceMaps": "both",
   "presets": [
-    "env", "react"
+    [
+      "@babel/env", {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+    , "@babel/react"
   ]
 }
