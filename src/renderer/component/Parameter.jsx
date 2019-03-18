@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-const dialog = require('electron').remote.dialog 
+const dialog = require('electron').remote.dialog
 
 const errorno = {
   1: 'id is empty.',
@@ -31,7 +31,7 @@ class Parameter extends React.Component {
         method: '',
         url: '',
         regex: ''
-      },
+      }
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -90,7 +90,7 @@ class Parameter extends React.Component {
 
     let status = false
     let className = ''
-    switch(name) {
+    switch (name) {
       case 'id':
         const idArr = this.props.parameters.map(i => i.id)
         if (/^[^_ ]/.test(value) && !idArr.includes(value)) {
@@ -105,7 +105,7 @@ class Parameter extends React.Component {
         status = true
         break
       case 'url':
-      if ( /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/.test(value) ) {
+        if (/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/.test(value)) {
           status = true
           className = 'is-success'
         } else {
@@ -120,9 +120,9 @@ class Parameter extends React.Component {
         console.warn('undeclared name')
         return
     }
-    this.setState( prev => {
-      const _status = Object.assign(prev.status, {[name]: status})
-      const _className = Object.assign(prev.className, {[name]: className})
+    this.setState(prev => {
+      const _status = Object.assign(prev.status, { [name]: status })
+      const _className = Object.assign(prev.className, { [name]: className })
       return {
         [name]: value,
         status: _status,
@@ -144,7 +144,7 @@ class Parameter extends React.Component {
           message: 'hogehoge'
         })
         return
-      }  
+      }
       const p = {
         'id': this.state.id,
         'method': this.state.method,
@@ -181,7 +181,7 @@ class Parameter extends React.Component {
         method: '',
         url: '',
         regex: ''
-      },
+      }
     })
   }
 }

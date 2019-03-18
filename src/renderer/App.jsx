@@ -1,12 +1,12 @@
 import React from 'react'
 import fetch from 'isomorphic-fetch'
 import storage from 'electron-json-storage'
-import {ipcRenderer} from 'electron'
-import {LogTerminal} from './util'
+import { ipcRenderer } from 'electron'
+import { LogTerminal } from './util'
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
-import {FooterLogo} from './component/etc'
+import { FooterLogo } from './component/etc'
 import Term from './component/Terminal'
 import PortSelector from './component/PortSelector'
 
@@ -31,11 +31,11 @@ class App extends React.Component {
       }
     })
     ipcRenderer.on('serial:ports', (_, ports) => {
-      this.setState({ports: ports})
+      this.setState({ ports: ports })
     })
     ipcRenderer.on('serial:connected', (_, port) => {
       this.term.clear()
-      this.setState({port: port})
+      this.setState({ port: port })
       this.term.logging('Connected')
     })
     ipcRenderer.on('serial:receive', (_, txt) => {
@@ -43,7 +43,7 @@ class App extends React.Component {
     })
     ipcRenderer.on('serial:close', () => {
       this.term.clear()
-      this.setState({port: null})
+      this.setState({ port: null })
       this.term.write('Disconnected.')
     })
     ipcRenderer.send('ready')
@@ -53,29 +53,29 @@ class App extends React.Component {
   render () {
     return (
       <div>
-        <div id="overlay">
-          <div id="overlay-button">
-          <a href={"https://mbitc.net/my/?uuid=" + this.props.config.uuid} target='_blank'>
-            <span className='icon'>
-              <i className="fas fa-2x fa-plug"></i>
-            </span>
-          </a>
+        <div id='overlay'>
+          <div id='overlay-button'>
+            <a href={'https://mbitc.net/my/?uuid=' + this.props.config.uuid} target='_blank'>
+              <span className='icon'>
+                <i className='fas fa-2x fa-plug' />
+              </span>
+            </a>
           </div>
         </div>
-        <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt}/>
+        <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt} />
         <div className='container'>
           <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
           <Term term={this.term} />
-          <PortSelector port={this.state.port} ports={this.state.ports}/>
+          <PortSelector port={this.state.port} ports={this.state.ports} />
           <FooterLogo />
         </div>
       </div>
     )
   }
 
-  updateParameters(params) {
+  updateParameters (params) {
     storage.set('parameters', params)
-    this.setState({parameters: params})
+    this.setState({ parameters: params })
   }
 
   async handler (str) {
@@ -122,7 +122,7 @@ class App extends React.Component {
     this.term.logging(send)
 
     this.setState(before => {
-      return {successCnt: before.successCnt + 1}
+      return { successCnt: before.successCnt + 1 }
     })
   }
 

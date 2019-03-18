@@ -3,14 +3,13 @@ import PropTypes from 'prop-types'
 
 export default
 class StateNavi extends React.Component {
-
   constructor (props) {
     super(props)
   }
 
   render () {
     return (
-      <section className="hero is-primary">
+      <section className='hero is-primary'>
         <nav className='hero-body level'>
           <div className='level-item has-text-centered'>
             <div>

@@ -1,3 +1,3 @@
 module.exports = {
-    title: "Microbit:Connect"
+  title: 'Microbit:Connect'
 }

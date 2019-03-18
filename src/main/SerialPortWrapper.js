@@ -1,6 +1,6 @@
 import SerialPort from 'serialport'
 import _ from 'lodash'
-import {ipcMain} from 'electron'
+import { ipcMain } from 'electron'
 
 // SerialPortをWrapしたクラス
 export default
@@ -12,8 +12,7 @@ class SerialPortWrapper {
     this._updatePortList()
     this.portListListen()
     ipcMain.on('serial:connect', (ev, comName) => {
-      if (this.port === null)
-        this.connectPort(comName)
+      if (this.port === null) { this.connectPort(comName) }
     })
     ipcMain.on('serial:write', (ev, line) => {
       this.write(line)
@@ -21,7 +20,7 @@ class SerialPortWrapper {
   }
 
   // ひとつのシリアルポートラッパーに対して複数のListenerを登録できる
-  append(sender) {
+  append (sender) {
     sender.send('serial:ports', this.ports)
     this.senders.push(sender)
   }
@@ -69,7 +68,6 @@ class SerialPortWrapper {
       this.senders.forEach(sender => {
         sender.send('serial:connected', p)
       })
-      
     })
     let chars = ''
     if (process.env.NODE_ENV === 'dev') {
@@ -100,8 +98,7 @@ class SerialPortWrapper {
         sender.send('serial:close')
       })
       this.port = null
-      if (process.env.NODE_ENV === 'dev')
-        clearInterval(intervalCleanFlag)
+      if (process.env.NODE_ENV === 'dev') { clearInterval(intervalCleanFlag) }
     })
     this.port = p
     // this.emit('connected', p)

@@ -1,6 +1,6 @@
-const { app, shell, BrowserWindow } = require('electron')
 import SerialPortWrapper from './SerialPortWrapper'
-import { ipcMain } from 'electron';
+import { ipcMain } from 'electron'
+const { app, shell, BrowserWindow } = require('electron')
 
 const isWin = (process.platform === 'win32')
 const config = require('../config')
@@ -19,19 +19,18 @@ function createWindow () {
     center: true,
     resizable: false,
     // title: config.title,
-    autoHideMenuBar: true,
+    autoHideMenuBar: true
   })
 
   mainWindow.loadFile('index.html')
-  if (process.env.NODE_ENV === 'dev')
-                mainWindow.webContents.openDevTools()
+  if (process.env.NODE_ENV === 'dev') { mainWindow.webContents.openDevTools() }
 
   // a tag でリンクを開く時、デフォルトのブラウザで表示する
   mainWindow.webContents.on('new-window', function (event, url) {
     event.preventDefault()
     shell.openExternal(url)
   })
-  
+
   mainWindow.on('closed', function () {
     mainWindow = null
   })
