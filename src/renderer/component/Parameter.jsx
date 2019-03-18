@@ -157,7 +157,7 @@ class Parameter extends React.Component {
         params.push(p)
         ipcRenderer.send('config:add', 'parameters', params)
       } else {
-        console.log('Name column must be unique.')
+        console.warn('Name column must be unique.')
       }
     } else if (name === 'remove') {
       const value = target.value

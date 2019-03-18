@@ -6,7 +6,7 @@ import uuidv4 from 'uuid/v4'
 import { ipcRenderer } from 'electron';
 
 import App from './App'
-import getConfig from '../config'
+import {getConfig} from '../config'
 
 ipcRenderer.on('config:changed', (ev, config) => {
   AppRender(config)
@@ -32,6 +32,7 @@ getP('initialized')
 })
 .then( getConfig )
 .then( config => {
+  console.log(config)
   AppRender(config)
 })
 

@@ -1,14 +1,16 @@
 import SerialPort from 'serialport'
 import _ from 'lodash'
 import { ipcMain } from 'electron'
+import Handler from './handler'
 
 // SerialPortをWrapしたクラス
 export default
 class SerialPortWrapper {
-  constructor () {
+  constructor (config) {
     this.senders = []
     this.port = null
     this.ports = []
+    this.handler = new Handler(config)
     this._updatePortList()
     this.portListListen()
     ipcMain.on('serial:connect', (ev, comName) => {
@@ -17,12 +19,23 @@ class SerialPortWrapper {
     ipcMain.on('serial:write', (ev, line) => {
       this.write(line)
     })
+    this.handler.on('out', (str) => {
+      this.write(str)
+      this.senders.forEach(sender => {
+        sender.send('serial:wrote', str)
+      })
+    })
   }
 
   // ひとつのシリアルポートラッパーに対して複数のListenerを登録できる
-  append (sender) {
+  subscribe (sender) {
+    this.handler.subscribe(sender)
     sender.send('serial:ports', this.ports)
     this.senders.push(sender)
+  }
+
+  configChanged(cfg) {
+    this.handler.configChanged(cfg)
   }
 
   portListListen () {
@@ -79,7 +92,7 @@ class SerialPortWrapper {
           v: Math.floor(Math.random() * Math.floor(99999999))
         })
         this.senders.forEach(sender => {
-          sender.send('serial:receive', j)
+          this.handler.emit('handle', j)
         })
       }, 3000)
     }
@@ -88,7 +101,7 @@ class SerialPortWrapper {
       const char = p.read().toString()
       if (char === '\r\n') {
         let line = chars.trim()
-        this.serial.send('serial:receive', line)
+        this.handler.emit('handle', line)
         chars = ''
       }
       chars += char

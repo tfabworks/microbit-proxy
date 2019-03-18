@@ -1,5 +1,5 @@
 import React from 'react'
-import fetch from 'isomorphic-fetch'
+import PropTypes from 'prop-types'
 import { ipcRenderer } from 'electron'
 import { LogTerminal } from './util'
 
@@ -21,6 +21,7 @@ class App extends React.Component {
       errorCnt: 0,
     }
 
+   this._setIpcListener()
     ipcRenderer.send('ready')
   }
 
@@ -47,54 +48,6 @@ class App extends React.Component {
     )
   }
 
-  async handler (str) {
-    console.log(str)
-    let received
-    try {
-      received = JSON.parse(str)
-    } catch (e) {
-      console.warn(e.message)
-      this._error('json string is broken.')
-      return
-    }
-    this.term.logging(`SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
-    const found = this.props.config.parameters.find((el) => {
-      return el.id == received.n
-    })
-    if (found === undefined) {
-      console.warn(`ID:${received.n} is not set.`)
-      this._error(`ID:${received.n} is not set.`)
-    }
-
-    const status = await fetch(found.url, {
-      method: found.method,
-      body: (found.method === 'POST') ? received.v : undefined
-    }).then(response => {
-      if (!response.ok) {
-        this._error(`http response error: ${response.statusText}`)
-        return new Promise.resolve(new Error())
-      }
-      return response.text()
-    })
-    if (status instanceof Error) { return }
-    let txt
-    if (found.regex) {
-      const matches = (new RegExp(found.regex)).exec(status)
-      if (matches === null) { this._error('http response is not contains REGEX\'s text.') }
-      txt = matches.join('\r\n')
-    } else {
-      txt = status
-    }
-
-    const send = txt
-    ipcRenderer.send('serial:write', send + '\r\n')
-    this.term.logging(send)
-
-    this.setState(before => {
-      return { successCnt: before.successCnt + 1 }
-    })
-  }
-
   _setIpcListener() {
     ipcRenderer.on('serial:ports', (_, ports) => {
       this.setState({ ports: ports })
@@ -104,20 +57,28 @@ class App extends React.Component {
       this.setState({ port: port })
       this.term.logging('Connected')
     })
-    ipcRenderer.on('serial:receive', (_, txt) => {
-      this.handler(txt)
-    })
     ipcRenderer.on('serial:close', () => {
       this.term.clear()
       this.setState({ port: null })
       this.term.write('Disconnected.')
     })
-  }
-
-  _error (str) {
-    this.setState(before => {
-      return { errorCnt: before.errorCnt + 1 }
+    ipcRenderer.on('serial:wrote', () => {
+      this.setState(before => {
+        return { successCnt: before.successCnt + 1 }
+      })
     })
-    this.term.logging(`Error: ${str}`)
+    ipcRenderer.on('logging:info', (ev, str) => {
+      this.term.logging(str)
+    })
+    ipcRenderer.on('logging:warn', (ev, str) => {
+      this.setState(before => {
+        return { errorCnt: before.errorCnt + 1 }
+      })
+      this.term.logging(`Error: ${str}`)
+    })
   }
+}
+
+App.propTypes = {
+  config: PropTypes.object.isRequired
 }

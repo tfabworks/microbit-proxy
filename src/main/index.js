@@ -1,36 +1,36 @@
 import SerialPortWrapper from './SerialPortWrapper'
 import { ipcMain } from 'electron'
-import { setP, removeP } from '../util/electron-json-storage-promise';
 const { app, shell, BrowserWindow } = require('electron')
 
 const isWin = (process.platform === 'win32')
-const getConfig = require('../config')
+const {Config} = require('../config')
 
 let mainWindow
-let serial = new SerialPortWrapper()
-let config 
+let config = new Config()
+let serial = new SerialPortWrapper(config)
+
+config.on('changed', (cfg) => {
+  serial.configChanged(cfg)
+})
 
 function setIpcHandler() {
   ipcMain.on('ready', (ev) => {
-    serial.append(ev.sender)
+    serial.subscribe(ev.sender)
   })
 
   ipcMain.on('config:add', async (ev, key, value) => {
-    console.log('config:add')
-    await setP(key, value)
-    config = await getConfig()
-    ev.sender.send('config:changed', config)
+    config.once('changed', (cfg) => {
+      ev.sender.send('config:changed', cfg)
+    })
+    config.modify(key, value)
   })
 
   ipcMain.on('config:remove', async (ev, key, value) => {
-    console.log('config:remove')
-    const newConf = config.parameters.filter(v => { return v.id !== value })
-    setP(key, newConf)
-    .then(getConfig)
-    .then( cnf => {
-      config = cnf
-      ev.sender.send('config:changed', config)
+    config.once('changed', (cnf) =>{
+      ev.sender.send('config:changed', cnf)
     })
+    const newConf = config.parameters.filter(v => { return v.id !== value })
+    config.modify(key, newConf)
   })
 }
 
@@ -68,8 +68,6 @@ function createWindow () {
 
 function createApp() {
   
-  app.on('ready', createWindow)
-
   app.on('window-all-closed', function () {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
@@ -90,8 +88,9 @@ function createApp() {
 // main
 (async function() {
   // appのイベントハンドラーを先に登録しないとEvent: readyを捕捉できない
-  createApp()
   setIpcHandler()
+  createApp()
   
-  config = await getConfig()
+  await config.lateinit()
+  createWindow()
 }());
