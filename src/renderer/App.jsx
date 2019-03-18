@@ -1,6 +1,5 @@
 import React from 'react'
 import fetch from 'isomorphic-fetch'
-import storage from 'electron-json-storage'
 import { ipcRenderer } from 'electron'
 import { LogTerminal } from './util'
 
@@ -20,34 +19,9 @@ class App extends React.Component {
       ports: [],
       successCnt: 0,
       errorCnt: 0,
-      parameters: []
     }
-    storage.get('parameters', (error, data) => {
-      if (error) throw error
-      if (data) {
-        this.setState({
-          parameters: data
-        })
-      }
-    })
-    ipcRenderer.on('serial:ports', (_, ports) => {
-      this.setState({ ports: ports })
-    })
-    ipcRenderer.on('serial:connected', (_, port) => {
-      this.term.clear()
-      this.setState({ port: port })
-      this.term.logging('Connected')
-    })
-    ipcRenderer.on('serial:receive', (_, txt) => {
-      this.handler(txt)
-    })
-    ipcRenderer.on('serial:close', () => {
-      this.term.clear()
-      this.setState({ port: null })
-      this.term.write('Disconnected.')
-    })
+
     ipcRenderer.send('ready')
-    this.updateParameters = this.updateParameters.bind(this)
   }
 
   render () {
@@ -64,18 +38,13 @@ class App extends React.Component {
         </div>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt} />
         <div className='container'>
-          <Parameter parameters={this.state.parameters} updateParameters={this.updateParameters} />
+          <Parameter parameters={this.props.config.parameters} />
           <Term term={this.term} />
           <PortSelector port={this.state.port} ports={this.state.ports} />
           <FooterLogo />
         </div>
       </div>
     )
-  }
-
-  updateParameters (params) {
-    storage.set('parameters', params)
-    this.setState({ parameters: params })
   }
 
   async handler (str) {
@@ -89,7 +58,7 @@ class App extends React.Component {
       return
     }
     this.term.logging(`SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
-    const found = this.state.parameters.find((el) => {
+    const found = this.props.config.parameters.find((el) => {
       return el.id == received.n
     })
     if (found === undefined) {
@@ -123,6 +92,25 @@ class App extends React.Component {
 
     this.setState(before => {
       return { successCnt: before.successCnt + 1 }
+    })
+  }
+
+  _setIpcListener() {
+    ipcRenderer.on('serial:ports', (_, ports) => {
+      this.setState({ ports: ports })
+    })
+    ipcRenderer.on('serial:connected', (_, port) => {
+      this.term.clear()
+      this.setState({ port: port })
+      this.term.logging('Connected')
+    })
+    ipcRenderer.on('serial:receive', (_, txt) => {
+      this.handler(txt)
+    })
+    ipcRenderer.on('serial:close', () => {
+      this.term.clear()
+      this.setState({ port: null })
+      this.term.write('Disconnected.')
     })
   }
 

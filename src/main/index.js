@@ -1,16 +1,38 @@
 import SerialPortWrapper from './SerialPortWrapper'
 import { ipcMain } from 'electron'
+import { setP, removeP } from '../util/electron-json-storage-promise';
 const { app, shell, BrowserWindow } = require('electron')
 
 const isWin = (process.platform === 'win32')
-const config = require('../config')
+const getConfig = require('../config')
 
 let mainWindow
 let serial = new SerialPortWrapper()
+let config 
 
-ipcMain.on('ready', (ev) => {
-  serial.append(ev.sender)
-})
+function setIpcHandler() {
+  ipcMain.on('ready', (ev) => {
+    serial.append(ev.sender)
+  })
+
+  ipcMain.on('config:add', async (ev, key, value) => {
+    console.log('config:add')
+    await setP(key, value)
+    config = await getConfig()
+    ev.sender.send('config:changed', config)
+  })
+
+  ipcMain.on('config:remove', async (ev, key, value) => {
+    console.log('config:remove')
+    const newConf = config.parameters.filter(v => { return v.id !== value })
+    setP(key, newConf)
+    .then(getConfig)
+    .then( cnf => {
+      config = cnf
+      ev.sender.send('config:changed', config)
+    })
+  })
+}
 
 function createWindow () {
   mainWindow = new BrowserWindow({
@@ -44,20 +66,32 @@ function createWindow () {
   }
 }
 
-app.on('ready', createWindow)
+function createApp() {
+  
+  app.on('ready', createWindow)
 
-app.on('window-all-closed', function () {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  app.on('window-all-closed', function () {
+    // On macOS it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  })
 
-app.on('activate', function () {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
+  app.on('activate', function () {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) {
+      createWindow()
+    }
+  })
+}
+
+// main
+(async function() {
+  // appのイベントハンドラーを先に登録しないとEvent: readyを捕捉できない
+  createApp()
+  setIpcHandler()
+  
+  config = await getConfig()
+}());

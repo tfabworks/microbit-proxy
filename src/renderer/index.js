@@ -1,43 +1,43 @@
 import 'babel-polyfill'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { getP, setP } from '../util/electron-json-storage-promise'
-import storage from 'electron-json-storage'
+import { getP, setP, clearP } from '../util/electron-json-storage-promise'
 import uuidv4 from 'uuid/v4'
+import { ipcRenderer } from 'electron';
 
 import App from './App'
+import getConfig from '../config'
+
+ipcRenderer.on('config:changed', (ev, config) => {
+  AppRender(config)
+})
 
 getP('initialized')
-  .then(data => { // 初期化されてるかチェック
-    if (!checkEmptyObject(data)) {
-      return Promise.all([
-        setP('initialized', true, throwError),
-        setP('parameters', {
-          id: '1',
-          method: 'GET',
-          url: 'https://ntp-a1.nict.go.jp/cgi-bin/time',
-          body: '',
-          regex: '\\d+:\\d+:\\d+'
-        }),
-        setP('uuid', uuidv4())
-      ])
-    } else {
-      return Promise.resolve()
-    }
-  })
-  .then(_ => { // configをとってくる
+.then(data => { // 初期化されてるかチェック
+  if (!checkEmptyObject(data)) {
     return Promise.all([
-      getP('uuid'),
-      getP('parameters')
+      setP('initialized', true, throwError),
+      setP('parameters', [{
+        id: '1',
+        method: 'GET',
+        url: 'https://ntp-a1.nict.go.jp/cgi-bin/time',
+        body: '',
+        regex: '\\d+:\\d+:\\d+'
+      }]),
+      setP('uuid', uuidv4())
     ])
-  })
-  .then(arr => {
-    console.log(arr[1])
-    const config = {
-      uuid: arr[0]
-    }
-    ReactDOM.render(<App config={config} />, document.getElementById('root'))
-  })
+  } else {
+    return Promise.resolve()
+  }
+})
+.then( getConfig )
+.then( config => {
+  AppRender(config)
+})
+
+function AppRender(config) {
+  ReactDOM.render(<App config={config} />, document.getElementById('root'))
+}
 
 const throwError = (err) => { throw err }
 

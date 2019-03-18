@@ -12,9 +12,33 @@ export function getP (key, ...options) {
   })
 }
 
-export function setP (key, ...options) {
+export function setP (key, json, ...options) {
   return new Promise((resolve, reject) => {
-    storage.set(key, options, (err) => {
+    storage.set(key, json, options, (err) => {
+      if (err) {
+        reject()
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+export function removeP (key, ...options) {
+  return new Promise((resolve, reject) => {
+    storage.remove(key, options, (err) => {
+      if (err) {
+        reject()
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+export function clearP(...options) {
+  return new Promise((resolve, reject) => {
+    storage.clear(options, (err) => {
       if (err) {
         reject()
       } else {

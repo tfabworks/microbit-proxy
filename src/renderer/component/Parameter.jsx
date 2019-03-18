@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { ipcRenderer } from 'electron';
 const dialog = require('electron').remote.dialog
 
 const errorno = {
@@ -152,15 +153,15 @@ class Parameter extends React.Component {
         'regex': this.state.regex
       }
       if (!params.find(e => e.id == p.id)) {
-        params.push(p)
-        this.props.updateParameters(params)
         this.stateRefresh()
+        params.push(p)
+        ipcRenderer.send('config:add', 'parameters', params)
       } else {
         console.log('Name column must be unique.')
       }
     } else if (name === 'remove') {
       const value = target.value
-      this.props.updateParameters(params.filter(v => { return v.id !== value }))
+      ipcRenderer.send('config:remove', 'parameters', value)
     }
   }
 
@@ -187,6 +188,5 @@ class Parameter extends React.Component {
 }
 
 Parameter.propTypes = {
-  parameters: PropTypes.array.isRequired,
-  updateParameters: PropTypes.func.isRequired
+  parameters: PropTypes.array.isRequired
 }
