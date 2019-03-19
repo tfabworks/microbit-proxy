@@ -8,7 +8,7 @@ export class Config extends EventEmitter {
     this.uuid
     this.parameters
   
-    if (cfg) {
+    if (If(cfg)) {
       this.title = cfg.title
       this.uuid = cfg.uuid
       this.parameters = cfg.parameters
@@ -50,4 +50,11 @@ export async function getConfig() {
       parameters: arr[1]
     })
   })
+}
+
+function If(obj) {
+  if (typeof obj === 'object' && Object.keys(obj).length === 0)
+    return false
+  else
+    return (obj) ? true : false
 }

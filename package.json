@@ -9,7 +9,8 @@
     "postinstall": "electron-builder install-app-deps",
     "build": "standard src --fix && babel src --out-dir dist",
     "dist": "electron-builder -w",
-    "clean": "rm -rf ./node_modules/ && rm -rf ./build/"
+    "clean": "rm -rf ./node_modules/ && rm -rf ./build/",
+    "test": "jest"
   },
   "author": {
     "name": "Saggggo",
@@ -20,22 +21,24 @@
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
-    "electron": "^4.1.0",
+    "babel-jest": "^24.5.0",
     "electron-builder": "^20.39.0",
+    "jest": "^24.5.0",
     "standard": "^12.0.1"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "bulma": "^0.7.4",
+    "electron": "^4.1.0",
     "electron-json-storage": "^4.1.6",
-    "isomorphic-fetch": "^2.2.1",
-    "lodash": "^4.17.11",
-    "prop-types": "^15.7.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
-    "serialport": "^7.1.4",
+    "prop-types": "^15.7.2",
+    "isomorphic-fetch": "^2.2.1",
     "uuid": "^3.3.2",
-    "xterm": "^3.12.0"
+    "lodash": "^4.17.11",
+    "serialport": "^7.1.4",
+    "xterm": "^3.12.0",
+    "bulma": "^0.7.4"
   },
   "build": {
     "productName": "microbit-proxy",
