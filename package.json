@@ -42,7 +42,7 @@
   },
   "build": {
     "productName": "microbit-proxy",
-    "appId": "tokyo.centerof",
+    "appId": "com.tfabworks",
     "directories": {
       "output": "build"
     },
