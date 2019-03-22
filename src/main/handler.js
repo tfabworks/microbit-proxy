@@ -32,6 +32,7 @@ class Handler extends EventEmitter {
   }
   
   async _handler(str) {
+    console.debug(str)
     let received
     let txt
     try {

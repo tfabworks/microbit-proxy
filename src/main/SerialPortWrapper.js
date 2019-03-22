@@ -11,6 +11,12 @@ class SerialPortWrapper {
     this.port = null
     this.ports = []
     this.handler = new Handler(config)
+    this.handler.subscribe({
+      send: function(type, msg) {
+        if (type === 'logging:error')
+          console.error(msg)
+      }
+    })
     this._updatePortList()
     this.portListListen()
     ipcMain.on('serial:connect', (ev, comName) => {
