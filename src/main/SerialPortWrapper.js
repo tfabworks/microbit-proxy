@@ -40,6 +40,11 @@ class SerialPortWrapper {
     this.senders.push(sender)
   }
 
+  unsubscribe() {
+    this.senders = []
+    this.handler.unsubscribe()
+  }
+
   configChanged(cfg) {
     this.handler.configChanged(cfg)
   }

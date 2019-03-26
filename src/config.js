@@ -7,9 +7,8 @@ import {getP, setP} from './util/electron-json-storage-promise'
 export class Config extends EventEmitter {
   constructor(cfg) {
     super()
-    this.title
-    this.uuid
-    this.parameters
+    this.uuid = null
+    this.parameters = []
   
     if (If(cfg)) {
       this.title = cfg.title
@@ -24,7 +23,6 @@ export class Config extends EventEmitter {
       getP('parameters')
     ])
     .then(arr => {
-      this.title = 'Microbit:Connect'
       this.uuid = arr[0]
       this.parameters = arr[1]
     })
@@ -42,17 +40,9 @@ export class Config extends EventEmitter {
 
 
 export async function getConfig() {
-  return await Promise.all([
-    getP('uuid'),
-    getP('parameters')
-  ])
-  .then( arr => {
-    return new Config({
-      title: 'Microbit:Connect',
-      uuid: arr[0],
-      parameters: arr[1]
-    })
-  })
+  const config = new Config()
+  await config.lateinit()
+  return config
 }
 
 function If(obj) {

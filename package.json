@@ -58,8 +58,7 @@
     "win": {
       "icon": "build/icons/microbit-proxy.ico",
       "target": [
-        "nsis",
-        "portable"
+        "nsis"
       ]
     },
     "linux": {

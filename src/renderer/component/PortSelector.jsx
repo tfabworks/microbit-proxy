@@ -30,7 +30,8 @@ class PortSelector extends React.Component {
   }
 
   handleClick (e) {
-    ipcRenderer.send('serial:connect', this.comName)
+    if (this.comName)
+      ipcRenderer.send('serial:connect', this.comName)
   }
 
   handleChange (e) {

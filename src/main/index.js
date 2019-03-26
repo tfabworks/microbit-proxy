@@ -56,6 +56,7 @@ function createMainWindow () {
 
   mainWindow.on('closed', function () {
     mainWindow = null
+    serial.unsubscribe()
   })
 
   if (env.isWin) {
