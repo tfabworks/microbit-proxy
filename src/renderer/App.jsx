@@ -5,7 +5,7 @@ import { LogTerminal } from './util'
 
 import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
-import { FooterLogo } from './component/etc'
+import { FooterLogo, VersionComponent } from './component/etc'
 import Term from './component/Terminal'
 import PortSelector from './component/PortSelector'
 
@@ -42,6 +42,7 @@ class App extends React.Component {
           <Parameter parameters={this.props.config.parameters} />
           <Term term={this.term} />
           <PortSelector port={this.state.port} ports={this.state.ports} />
+          <VersionComponent />
           <FooterLogo />
         </div>
       </div>

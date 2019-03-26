@@ -1,7 +1,7 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {

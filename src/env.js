@@ -1,13 +1,17 @@
 // System の環境変数
 // configとの違いはユーザーが明示的に設定できるか否か
 
-import {app} from 'electron'
+import {app, remote} from 'electron'
+const package_json = require('../package.json')
+
+const locale = (app)? app.getLocale() : remote.app.getLocale()
 
 module.exports = {
   "title": "Micro:bit-Connect",
+  "version": package_json.version,
   "isWin": (process.platform === 'win32'),
   "stage": process.env.NODE_ENV,
-  "locale": supportLocale(app.getLocale())
+  "locale": supportLocale(locale)
 }
 
 function supportLocale(localeStr) {

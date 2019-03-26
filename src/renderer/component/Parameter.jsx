@@ -1,4 +1,4 @@
-import React from 'react'
+  import React from 'react'
 import PropTypes from 'prop-types'
 import { ipcRenderer } from 'electron';
 const dialog = require('electron').remote.dialog
@@ -56,7 +56,7 @@ class Parameter extends React.Component {
                   <td>{e.method}</td>
                   <td className='word-break-all'>{e.url}</td>
                   <td className='word-break-all'>{e.regex}</td>
-                  <td><div className='control'><button className='button is-small' name='remove' value={e.id} onClick={this.handleClick}>削除</button></div></td>
+                  <td><div className='control'><button className='button is-small' name='remove' value={e.id} onClick={this.handleClick}>Delete</button></div></td>
                 </tr>
               )
             })}
@@ -65,7 +65,7 @@ class Parameter extends React.Component {
             <tr>
               <td>
                 <input className={'control input is-small ' + this.state.className.id} name='id' value={this.state.id} onChange={this.handleChange} type='text' />
-                <p>'_' で始まる文字列は使用できません</p>
+                <p>Do not use strings beginning with '_'</p>
               </td>
               <td><select className='control select is-small' name='method' value={this.state.method} onChange={this.handleChange}>
                 <option>GET</option>
@@ -73,10 +73,10 @@ class Parameter extends React.Component {
               </select></td>
               <td>
                 <input className={'control input is-small ' + this.state.className.url} name='url' value={this.state.url} onChange={this.handleChange} type='text' />
-                <p>http(s)://~ で始まるアドレスを入力してください</p>
+                <p>Please enter an address beginning with "https(:)//~"</p>
               </td>
               <td><input className='control input is-small' name='regex' value={this.state.regex} onChange={this.handleChange} type='text' /></td>
-              <td><button className='control button is-small' name='parameter-set' onClick={this.handleClick}>確定</button></td>
+              <td><button className='control button is-small' name='parameter-set' onClick={this.handleClick}>Confirm</button></td>
             </tr>
           </tfoot>
         </table>
