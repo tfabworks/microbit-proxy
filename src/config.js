@@ -1,3 +1,6 @@
+// アプリのコンフィグレーション
+// envとの違いはユーザーが明示的に設定できるか否か
+
 import EventEmitter from 'events'
 import {getP, setP} from './util/electron-json-storage-promise'
 

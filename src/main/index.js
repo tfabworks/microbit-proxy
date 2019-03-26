@@ -1,11 +1,12 @@
 import SerialPortWrapper from './SerialPortWrapper'
-import { ipcMain } from 'electron'
-const { app, shell, BrowserWindow } = require('electron')
+import { ipcMain, app, shell, BrowserWindow, Menu, Tray, MenuItem } from 'electron'
+import path from 'path'
+import env from '../env'
 
-const isWin = (process.platform === 'win32')
 const {Config} = require('../config')
 
 let mainWindow
+let tray = null
 let config = new Config()
 let serial = new SerialPortWrapper(config)
 
@@ -34,7 +35,7 @@ function setIpcHandler() {
   })
 }
 
-function createWindow () {
+function createMainWindow () {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 784,
@@ -45,7 +46,7 @@ function createWindow () {
   })
 
   mainWindow.loadFile('index.html')
-  if (process.env.NODE_ENV === 'dev') { mainWindow.webContents.openDevTools() }
+  if (env.stage === 'dev') { mainWindow.webContents.openDevTools() }
 
   // a tag でリンクを開く時、デフォルトのブラウザで表示する
   mainWindow.webContents.on('new-window', function (event, url) {
@@ -57,7 +58,7 @@ function createWindow () {
     mainWindow = null
   })
 
-  if (isWin) {
+  if (env.isWin) {
     mainWindow.on('app-command', (e, cmd) => {
       if (cmd === 'browser-backward' && mainWindow.webContents.canGoBack()) {
         mainWindow.webContents.goBack()
@@ -67,22 +68,41 @@ function createWindow () {
 }
 
 function createApp() {
-  
-  app.on('window-all-closed', function () {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
+  app.on('ready', () => {
+    tray = new Tray(path.join(__dirname, '../../build/icons/microbit-proxy.ico'))
+    const contextMenu = new Menu()
+    contextMenu.append(new MenuItem({label: 'Windowを開く', click() {
+      windowOpen()
+    }}))
+    contextMenu.append(new MenuItem({label: '終了', click() {
       app.quit()
-    }
+    }}))
+    tray.on('double-click', () => {
+      windowOpen()
+    })
+    tray.setToolTip(env.title)
+    tray.setContextMenu(contextMenu)
   })
 
-  app.on('activate', function () {
+  app.on('window-all-closed', function () {
+    // When all window closed, system tray still lives on. Therefore nothing to do.
+  })
+
+  app.on('activate', function (ev) {
+    ev.preventDefault()
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
-      createWindow()
+      createMainWindow()
     }
   })
+}
+
+function windowOpen() {
+  if (!mainWindow)
+    createMainWindow()
+  else
+    mainWindow.show()
 }
 
 // main
@@ -90,7 +110,7 @@ function createApp() {
   // appのイベントハンドラーを先に登録しないとEvent: readyを捕捉できない
   setIpcHandler()
   createApp()
-  
   await config.lateinit()
-  createWindow()
+  
+  createMainWindow()
 }());
