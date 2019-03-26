@@ -17,6 +17,8 @@ config.on('changed', (cfg) => {
 function setIpcHandler() {
   ipcMain.on('ready', (ev) => {
     serial.subscribe(ev.sender)
+    if (serial.port)
+      ev.sender.send('serial:connected', serial.port)
   })
 
   ipcMain.on('config:add', async (ev, key, value) => {
@@ -41,7 +43,7 @@ function createMainWindow () {
     height: 784,
     center: true,
     resizable: false,
-    // title: config.title,
+    title: env.title,
     autoHideMenuBar: true
   })
 
