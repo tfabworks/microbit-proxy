@@ -1,5 +1,6 @@
 import SerialPortWrapper from './SerialPortWrapper'
 import { ipcMain, app, shell, BrowserWindow, Menu, Tray, MenuItem } from 'electron'
+import { autoUpdater } from "electron-updater"
 import path from 'path'
 import env from '../env'
 
@@ -72,6 +73,7 @@ function createMainWindow () {
 
 function createApp() {
   app.on('ready', () => {
+    autoUpdater.checkForUpdatesAndNotify();
     tray = new Tray(path.join(__dirname, '../../build/icons/microbit-proxy.ico'))
     const contextMenu = new Menu()
     contextMenu.append(new MenuItem({label: 'Windowを開く', click() {

@@ -1,7 +1,7 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
@@ -10,7 +10,8 @@
     "build": "standard src --fix && babel src --out-dir dist",
     "dist": "electron-builder -w",
     "clean": "rm -rf ./node_modules/ && rm -rf ./build/",
-    "test": "jest"
+    "test": "jest",
+    "release": "build"
   },
   "author": {
     "name": "Saggggo",
@@ -29,16 +30,17 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "bulma": "^0.7.4",
     "electron-json-storage": "^4.1.6",
+    "electron-updater": "^4.0.6",
+    "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.11",
+    "prop-types": "^15.7.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
-    "prop-types": "^15.7.2",
-    "isomorphic-fetch": "^2.2.1",
-    "uuid": "^3.3.2",
-    "lodash": "^4.17.11",
     "serialport": "^7.1.4",
-    "xterm": "^3.12.0",
-    "bulma": "^0.7.4"
+    "uuid": "^3.3.2",
+    "xterm": "^3.12.0"
   },
   "build": {
     "productName": "microbit-proxy",
@@ -59,6 +61,9 @@
       "icon": "build/icons/microbit-proxy.ico",
       "target": [
         "nsis"
+      ],
+      "publish": [
+        "github"
       ]
     },
     "linux": {

@@ -3,3 +3,4 @@ dist
 build/*
 !build/icons
 .DS_Store
+.GH_token
