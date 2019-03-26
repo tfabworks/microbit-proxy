@@ -107,6 +107,17 @@ function windowOpen() {
 
 // main
 (async function() {
+  const gotTheLock = app.requestSingleInstanceLock()
+  if (!gotTheLock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.focus()
+      }
+    })
+  }
   // appのイベントハンドラーを先に登録しないとEvent: readyを捕捉できない
   setIpcHandler()
   createApp()
