@@ -35,6 +35,13 @@ class Handler extends EventEmitter {
     console.debug(str)
     let received
     let txt
+    let regex
+    let req = {
+      url: undefined,
+      method: undefined,
+      postjson: null,
+    }
+
     try {
       received = JSONparse(str)
     } catch (e) {
@@ -56,32 +63,13 @@ class Handler extends EventEmitter {
     })
 
     if (received.n.startsWith('_')) {
-      const postjson = {
+      req.url = 'https://mbitc.net/api/'
+      req.method = 'POST'
+      req.postjson = {
         'uuid': this.config.uuid,
         'n': received.n,
         'v': received.v.toString()
       }
-      await fetch('https://mbitc.net/api/', {
-        method: 'POST',
-        body: postjson
-      }).then( response => {
-        if (!response.ok) {
-          this.senders.forEach( sender => {
-            sender.send('logging:warn', `http response error: ${response.statusText}`)
-          })
-          return
-        } else {
-          this.senders.forEach(sender => {
-            sender.send('logging:info', response.status)
-          })
-        }
-        return Promise.resolve()
-      }).catch(e => {
-        this.senders.forEach(sender => {
-          sender.send('logging:error', 'http error')
-        })
-        throw new Error('http error')
-      })
     } else {
       const found = this.config.parameters.find((el) => {
         return el.id == received.n
@@ -92,42 +80,50 @@ class Handler extends EventEmitter {
         })
         return
       }
-    
-      const respText = await fetch(found.url, {
-        method: found.method,
-        body: (found.method === 'POST') ? received.v : undefined
-      }).then(response => {
-        if (!response.ok) {
-          this.senders.forEach(sender => {
-            sender.send('logging:warn', `http response error: ${response.statusText}`)
-          })
-          return new Promise.reject()
-        }
-        return response.text()
-      }).catch(e => {
-        this.senders.forEach(sender => {
-          sender.send('logging:error', 'http error')
-        })
-        throw new Error('http error')
-      })
+      req.url = found.url
+      req.method = found.method
+      req.postjson = (found.method === 'POST') ? received.v : undefined
+      if (found.regex) regex = found.regex
+    }
 
-      if (found.regex) {
-        const matches = (new RegExp(found.regex)).exec(respText)
-        if (matches === null) { 
-          this.senders.forEach(sender => {
-            sender.send("logging:warn", 'http response is not contains REGEX\'s text.')
-          })
-        }
-        txt = matches.join('\r\n')
-      } else {
-        txt = respText
+    console.log(req)
+    txt = await fetch(req.url, {
+      method: req.method,
+      body: (req.method === 'POST')? JSON.stringify(req.postjson): null,
+      headers: {
+        'Content-Type': 'application/json'
       }
+    }).then( response => {
+      if (!response.ok) {
+        this.senders.forEach(sender => {
+          sender.send('logging:warn', `http response error: ${response.statusText}`)
+        })
+        return new Promise.reject()
+      }
+      this.senders.forEach(sender => {
+        sender.send('logging:info', response.status)
+      })
+      return response.text()
+    }).catch(e => {
+      this.senders.forEach(sender => {
+        sender.send('logging:error', 'http error')
+      })
+      return new Error('http error')
+    })
+
+    if (regex) {
+      const matches = (new RegExp(regex)).exec(txt)
+      if (matches === null) {
+        this.senders.forEach(sender => {
+          sender.send("logging:warn", 'http response is not contains REGEX\'s text.')
+        })
+      }
+      txt = matches.join('\r\n')
     }
   
-    const send = txt
-    this.emit('out', send + '\r\n')
+    this.emit('out', txt + '\r\n')
     this.senders.forEach(sender => {
-      sender.send(send)
+      sender.send('logging:info', txt)
     })
   }
 }
