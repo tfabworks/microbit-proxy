@@ -1,6 +1,6 @@
 {
   "name": "microbit-proxy",
-  "homepage": "./",
+  "homepage": "https://tfabworks.com",
   "version": "0.5.4",
   "description": "mbit open the web.",
   "main": "dist/main",

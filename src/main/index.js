@@ -96,7 +96,8 @@ function createMainWindow () {
 
 function createApp() {
   app.on('ready', () => {
-    tray = new Tray(path.join(__dirname, '../../build/icons/microbit-proxy.ico'))
+    const iconPath = (env.isWin)? '../../build/icons/microbit-proxy.ico' : '../../build/icons/microbit-proxy.png'
+    tray = new Tray(path.join(__dirname, iconPath))
     const contextMenu = new Menu()
     contextMenu.append(new MenuItem({label: 'Windowを開く', click() {
       windowOpen()
