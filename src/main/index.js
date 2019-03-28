@@ -16,10 +16,11 @@ config.on('changed', (cfg) => {
 })
 
 function setIpcHandler() {
-  ipcMain.on('ready', (ev) => {
+  ipcMain.on('ready', async (ev) => {
     serial.subscribe(ev.sender)
     if (serial.port)
       ev.sender.send('serial:connected', serial.port)
+    await autoUpdater.checkForUpdatesAndNotify()
   })
 
   ipcMain.on('config:add', async (ev, key, value) => {
@@ -36,6 +37,28 @@ function setIpcHandler() {
     const newConf = config.parameters.filter(v => { return v.id !== value })
     config.modify(key, newConf)
   })
+
+  autoUpdater.on('error', (ev, err) => {
+    mainWindow.webContents.send('notify', `😱 Error: ${err}`)
+  })
+
+  autoUpdater.once('checking-for-update', (ev, err) => {
+    mainWindow.webContents.send('notify', '🔎 Checking for updates')
+  })
+
+  autoUpdater.once('update-available', (ev, err) => {
+    mainWindow.webContents.send('notify', '🎉 Update available. Downloading ⌛️')
+  })
+
+  autoUpdater.once('update-not-available', (ev, err) => {
+    mainWindow.webContents.send('notify', '👎 Update not available')
+  })
+
+  autoUpdater.once('update-downloaded', (ev, err) => {
+    const msg = '🤘 Update downloaded'
+    mainWindow.webContents.send('notify', msg)
+  })
+
 }
 
 function createMainWindow () {
@@ -73,7 +96,6 @@ function createMainWindow () {
 
 function createApp() {
   app.on('ready', () => {
-    autoUpdater.checkForUpdatesAndNotify();
     tray = new Tray(path.join(__dirname, '../../build/icons/microbit-proxy.ico'))
     const contextMenu = new Menu()
     contextMenu.append(new MenuItem({label: 'Windowを開く', click() {

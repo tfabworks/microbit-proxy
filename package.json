@@ -1,7 +1,7 @@
 {
   "name": "microbit-proxy",
   "homepage": "./",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "mbit open the web.",
   "main": "dist/main",
   "scripts": {
@@ -38,6 +38,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
+    "react-toastify": "^5.0.0-rc.3",
     "serialport": "^7.1.4",
     "uuid": "^3.3.2",
     "xterm": "^3.12.0"

@@ -94,19 +94,6 @@ class SerialPortWrapper {
       })
     })
     let chars = ''
-    if (process.env.NODE_ENV === 'dev') {
-      intervalCleanFlag = setInterval(() => {
-        const j = JSON.stringify({
-          t: Date.now(),
-          s: Math.floor(Math.random() * Math.floor(99999)),
-          n: '1',
-          v: Math.floor(Math.random() * Math.floor(99999999))
-        })
-        this.senders.forEach(sender => {
-          this.handler.emit('handle', j)
-        })
-      }, 3000)
-    }
 
     p.on('readable', () => {
       const char = p.read().toString()

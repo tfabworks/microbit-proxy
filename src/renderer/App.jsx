@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { ToastContainer, toast } from 'react-toastify';
 import { ipcRenderer } from 'electron'
 import { LogTerminal } from './util'
 
@@ -28,6 +29,7 @@ class App extends React.Component {
   render () {
     return (
       <div>
+        <ToastContainer />
         <div id='overlay'>
           <div id='overlay-button'>
             <a href={'https://mbitc.net/my/?uuid=' + this.props.config.uuid} target='_blank'>
@@ -49,6 +51,20 @@ class App extends React.Component {
     )
   }
 
+  notify(msg, options, type="default") {
+    switch(type) {
+      case 'success':
+      case 'info':
+      case 'warn':
+      case 'error':
+        toast[type](msg, options)
+        break
+      case 'default':
+      default:
+        toast(msg, options)
+    }
+  }
+
   _setIpcListener() {
     ipcRenderer.on('serial:ports', (_, ports) => {
       this.setState({ ports: ports })
@@ -67,6 +83,16 @@ class App extends React.Component {
       this.setState(before => {
         return { successCnt: before.successCnt + 1 }
       })
+    })
+    ipcRenderer.on('notify', (_, msg, type='default') => {
+      console.log(msg)
+      this.notify(msg, {
+        position: "top-right",
+        hideProgressBar: true,
+        pauseOnHover: true,
+        closeOnClick: true,
+        draggable: false
+      }, 'info')
     })
     ipcRenderer.on('logging:info', (ev, str) => {
       this.term.logging(str)
