@@ -63,7 +63,7 @@ class Handler extends EventEmitter {
     })
 
     if (received.n.startsWith('_')) {
-      req.url = 'https://mbitc.net/api/'
+      req.url = 'http://mbitc.net/api/'
       req.method = 'POST'
       req.postjson = {
         'uuid': this.config.uuid,
