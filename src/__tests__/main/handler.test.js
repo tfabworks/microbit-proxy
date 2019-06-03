@@ -14,7 +14,7 @@ describe('handle unsupported input', () => {
       }
     }
     handler.subscribe(sender)
-  
+
   it('received undefined, null and various type of unmeaning data type.', () => {
     handler.emit('handle', undefined)
     handler.emit('handle', null)
@@ -39,10 +39,10 @@ describe('handle unsupported input', () => {
         expect(type).toMatch('logging:error')
         expect(msg).toMatch('json format is invalid.')
       }
-    } 
+    }
     handler.unsubscribe()
     handler.subscribe(sender)
-  
+
     handler.emit('handle', JSON.stringify({}))
     handler.emit('handle', JSON.stringify({hoge: true}))
     handler.emit('handle', JSON.stringify({

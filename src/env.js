@@ -5,12 +5,14 @@ import {app, remote} from 'electron'
 const package_json = require('../package.json')
 
 const locale = (app)? app.getLocale() : remote.app.getLocale()
+const stage = process.env.NODE_ENV
 
 module.exports = {
   "title": "Micro:bit-Connect",
   "version": package_json.version,
   "isWin": (process.platform === 'win32'),
-  "stage": process.env.NODE_ENV,
+  "stage": stage,
+  "url:api": (stage === "production")? "mbitc.net": "localhost:3000",
   "locale": supportLocale(locale)
 }
 

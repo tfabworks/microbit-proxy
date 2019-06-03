@@ -86,7 +86,6 @@ class Handler extends EventEmitter {
       if (found.regex) regex = found.regex
     }
 
-    console.log(req)
     txt = await fetch(req.url, {
       method: req.method,
       body: (req.method === 'POST')? JSON.stringify(req.postjson): null,
