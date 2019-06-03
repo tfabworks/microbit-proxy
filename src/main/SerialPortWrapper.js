@@ -99,7 +99,7 @@ class SerialPortWrapper {
       const char = p.read().toString()
       if (char === '\r\n') {
         let line = chars.trim()
-        this.handler.emit('handle', line)
+        this.handler.handle(line)
         chars = ''
       }
       chars += char
@@ -116,6 +116,9 @@ class SerialPortWrapper {
   }
 
   write (text) {
-    if (this.port === null) { console.warn('port is not connected.') } else { this.port.write(text) }
+    if (this.port === null)
+      console.warn('port is not connected.')
+    else
+     this.port.write(text)
   }
 }

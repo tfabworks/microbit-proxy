@@ -1,6 +1,7 @@
 'use strict'
 import EventEmitter from 'events'
 import fetch from 'isomorphic-fetch'
+import env from '../env'
 
 class ParseError extends Error {
   constructor(msg) {
@@ -15,8 +16,6 @@ class Handler extends EventEmitter {
     this.config = config
     // log や successなどの状態をとれるリスナーをセットする
     this.senders = []
-    
-    this.on('handle', this._handler)
   }
 
   subscribe(sender) {
@@ -30,9 +29,12 @@ class Handler extends EventEmitter {
   configChanged(cfg) {
     this.config = cfg
   }
-  
+
+  handle(line) {
+    this._handler(line)
+  }
+
   async _handler(str) {
-    console.debug(str)
     let received
     let txt
     let regex
@@ -43,27 +45,23 @@ class Handler extends EventEmitter {
     }
 
     try {
-      received = JSONparse(str)
+      received = this.parseJson(str)
     } catch (e) {
-      this.senders.forEach(sender => {
-        sender.send('logging:error', e.message)
-      })
+      this.loggingError(e.message)
       return
     }
+
     const keyArray = Object.keys(received)
     const check = ['t', 's', 'n', 'v'].map(k => { return keyArray.includes(k) }).every(tf => tf === true)
     if (!check) {
-      this.senders.forEach(sender => {
-        sender.send('logging:error', 'json format is invalid.')
-      })
-      return 
+      this.loggingError('json format is invalid.')
+      return
     }
-    this.senders.forEach(sender => {
-      sender.send('logging:info', `SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
-    })
+
+    this.loggingInfo(`SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
 
     if (received.n.startsWith('_')) {
-      req.url = 'http://mbitc.net/api/'
+      req.url = env["url:api"] + '/api/'
       req.method = 'POST'
       req.postjson = {
         'uuid': this.config.uuid,
@@ -75,9 +73,7 @@ class Handler extends EventEmitter {
         return el.id == received.n
       })
       if (found === undefined) {
-        this.senders.forEach(sender => {
-          sender.send('logging:warn', `ID:${received.n} is not set.`)
-        })
+        this.loggingWarn(`ID:${received.n} is not set.`)
         return
       }
       req.url = found.url
@@ -94,47 +90,55 @@ class Handler extends EventEmitter {
       }
     }).then( response => {
       if (!response.ok) {
-        this.senders.forEach(sender => {
-          sender.send('logging:warn', `http response error: ${response.statusText}`)
-        })
+        this.loggingWarn(`http response error: ${response.statusText}`)
         return new Promise.reject()
       }
-      this.senders.forEach(sender => {
-        sender.send('logging:info', response.status)
-      })
+      this.loggingInfo(response.status)
       return response.text()
     }).catch(e => {
-      this.senders.forEach(sender => {
-        sender.send('logging:error', 'http error')
-      })
+      this.loggingError('http error')
       return new Error('http error')
     })
 
     if (regex) {
       const matches = (new RegExp(regex)).exec(txt)
       if (matches === null) {
-        this.senders.forEach(sender => {
-          sender.send("logging:warn", 'http response is not contains REGEX\'s text.')
-        })
+        this.loggingWarn('http response is not contains REGEX\'s text.')
       }
       txt = matches.join('\r\n')
     }
-  
+
+    this.loggingInfo(txt)
     this.emit('out', txt + '\r\n')
+  }
+
+  loggingInfo(str) {
     this.senders.forEach(sender => {
-      sender.send('logging:info', txt)
+      sender.send('logging:info', str)
     })
   }
-}
 
-function JSONparse(str) {
-  switch(str) {
-    case true:
-    case false:
-    case null:
-      throw new SyntaxError('Unexpected token.')
-      break;
-    default:
-      return JSON.parse(str)
+  loggingWarn(str) {
+    this.senders.forEach(sender => {
+      sender.send('logging:warn', str)
+    })
+  }
+
+  loggingError(str) {
+    this.senders.forEach(sender => {
+      sender.send('logging:error', str)
+    })
+  }
+
+  parseJson(str) {
+    switch(str) {
+      case true:
+      case false:
+      case null:
+        throw new SyntaxError('Unexpected token.')
+        break;
+      default:
+        return JSON.parse(str)
+    }
   }
 }

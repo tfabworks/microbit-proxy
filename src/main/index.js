@@ -150,6 +150,5 @@ function windowOpen() {
   setIpcHandler()
   createApp()
   await config.lateinit()
-  
-  createMainWindow()
+    createMainWindow()
 }());
