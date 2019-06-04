@@ -7,16 +7,7 @@ const package_json = require('../package.json')
 const locale = (app)? app.getLocale() : remote.app.getLocale()
 const stage = process.env.NODE_ENV
 
-module.exports = {
-  "title": "Micro:bit-Connect",
-  "version": package_json.version,
-  "isWin": (process.platform === 'win32'),
-  "stage": stage,
-  "url:api": (stage === "production")? "mbitc.net": "localhost:3000",
-  "locale": supportLocale(locale)
-}
-
-function supportLocale(localeStr) {
+function supportLocale(localeStr: string) {
   let locale
   switch(localeStr) {
     case 'ja':
@@ -36,3 +27,13 @@ function supportLocale(localeStr) {
   }
   return locale
 }
+
+export default {
+  "title": "Micro:bit-Connect",
+  "version": package_json.version,
+  "isWin": (process.platform === 'win32'),
+  "stage": stage,
+  "url:api": (stage === "production")? "mbitc.net": "localhost:3000",
+  "locale": supportLocale(locale)
+}
+

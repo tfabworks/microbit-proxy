@@ -2,9 +2,21 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ipcRenderer } from 'electron'
 
+interface IProps {
+  port: any;
+  ports: any;
+}
+interface IState {
+  selected: any;
+}
+
 export default
-class PortSelector extends React.Component {
-  constructor (props) {
+class PortSelector extends React.Component<IProps, IState> {
+  comName: string;
+  port: string|undefined;
+  ports: any;
+
+  constructor (props: any) {
     super(props)
     this.comName = ''
     this.state = {
@@ -20,7 +32,7 @@ class PortSelector extends React.Component {
       <form className='field' id='Connection'>
         <div className='control'>
           <select className='select' name='com-port' value={this.comName} onChange={this.handleChange}>
-            {this.props.ports.map((p, i) => {
+            {this.props.ports.map((p:any, i:number) => {
               return <option key={i} value={p.comName}>{p.comName}</option>
             })}
           </select>
@@ -29,17 +41,12 @@ class PortSelector extends React.Component {
       </form>)
   }
 
-  handleClick (e) {
+  handleClick (e: any) {
     if (this.comName)
       ipcRenderer.send('serial:connect', this.comName)
   }
 
-  handleChange (e) {
+  handleChange (e: any) {
     this.setState({ 'selected': e.target.value })
   }
-}
-
-PortSelector.propTypes = {
-  port: PropTypes.object,
-  ports: PropTypes.array.isRequired
 }

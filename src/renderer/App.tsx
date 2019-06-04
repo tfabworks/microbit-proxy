@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { ToastContainer, toast } from 'react-toastify';
 import { ipcRenderer } from 'electron'
 import QRcode from 'qrcode'
@@ -8,9 +7,23 @@ import StateNavi from './component/StateNavi'
 import { VersionComponent } from './component/etc'
 import PortSelector from './component/PortSelector'
 
+interface IProps {
+  config: any;
+}
+
+interface IState {
+  port: any;
+  ports: any;
+  successCnt: number;
+  errorCnt: number;
+}
+
 export default
-class App extends React.Component {
-  constructor (props) {
+class App extends React.Component<IProps, IState> {
+  term: any;
+  qrref: any;
+
+  constructor (props: IProps) {
     super(props)
     this.state = {
       port: null,
@@ -58,7 +71,7 @@ class App extends React.Component {
       if (err) console.error(err)
     })
   }
-  notify(msg, options, type="default") {
+  notify(msg: any, options: any, type="default") {
     switch(type) {
       case 'success':
       case 'info':
@@ -73,21 +86,21 @@ class App extends React.Component {
   }
 
   _setIpcListener() {
-    ipcRenderer.on('serial:ports', (_, ports) => {
+    ipcRenderer.on('serial:ports', (_: any, ports: any) => {
       this.setState({ ports: ports })
     })
-    ipcRenderer.on('serial:connected', (_, port) => {
+    ipcRenderer.on('serial:connected', (_: any, port: any) => {
       this.setState({ port: port })
     })
     ipcRenderer.on('serial:close', () => {
       this.setState({ port: null })
     })
     ipcRenderer.on('serial:wrote', () => {
-      this.setState(before => {
+      this.setState((before: any) => {
         return { successCnt: before.successCnt + 1 }
       })
     })
-    ipcRenderer.on('notify', (_, msg, type='default') => {
+    ipcRenderer.on('notify', (_: any, msg: string, type:string='default') => {
       console.log(msg)
       this.notify(msg, {
         position: "top-right",
@@ -97,17 +110,13 @@ class App extends React.Component {
         draggable: false
       }, 'info')
     })
-    ipcRenderer.on('logging:warn', (ev, str) => {
+    ipcRenderer.on('logging:warn', (ev: any, str: any) => {
       this.setState(before => {
         return { errorCnt: before.errorCnt + 1 }
       })
     })
   }
-  generateUuidUrl() {
+  generateUuidUrl() : string{
     return 'https://mbitc.net/my/?uuid=' + this.props.config.uuid
   }
-}
-
-App.propTypes = {
-  config: PropTypes.object.isRequired
 }

@@ -2,30 +2,33 @@
 // envとの違いはユーザーが明示的に設定できるか否か
 
 import EventEmitter from 'events'
-import {getP, setP} from './util/electron-json-storage-promise'
+import {getP as get, setP as set, IData} from './util/electron-json-storage-promise'
+
+interface IOptions {
+  title?: string;
+  uuid?: string;
+}
 
 export class Config extends EventEmitter {
-  constructor(cfg) {
+  uuid: string;
+  title: string;
+
+  constructor(cfg: IOptions) {
     super()
-    this.title = ""
-    this.uuid = null
-  
-    if (If(cfg)) {
-      this.title = cfg.title
-      this.uuid = cfg.uuid
-    }
+    this.title = cfg.title || ""
+    this.uuid = cfg.uuid || ""
   }
 
   async lateinit() {
-    await getP('uuid')
-    .then(uuid => {
-      this.uuid = uuid
+    await get('uuid')
+    .then(obj => {
+      this.uuid = obj.uuid
     })
     this.emit('changed', this)
   }
 
-  modify(key, value) {
-    return setP(key, value)
+  modify(key: keyof Config, value: any) {
+    return set(key, value)
     .then( () => {
       this[key] = value;
       this.emit('changed', this)
@@ -35,12 +38,12 @@ export class Config extends EventEmitter {
 
 
 export async function getConfig() {
-  const config = new Config()
+  const config = new Config({})
   await config.lateinit()
   return config
 }
 
-function If(obj) {
+function If(obj: any) {
   if (typeof obj === 'object' && Object.keys(obj).length === 0)
     return false
   else

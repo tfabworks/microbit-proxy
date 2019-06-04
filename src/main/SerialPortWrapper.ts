@@ -1,40 +1,49 @@
 import SerialPort from 'serialport'
 import _ from 'lodash'
-import { ipcMain } from 'electron'
+import { ipcMain, WebContents } from 'electron'
 import Handler from './handler'
+import {Config} from '../config'
+
 
 // SerialPortをWrapしたクラス
 export default
 class SerialPortWrapper {
-  constructor (config) {
+  senders: any;
+  handler: Handler;
+  port: any;
+  ports: any;
+
+  constructor (config: Config) {
     this.senders = []
     this.port = null
     this.ports = []
     this.handler = new Handler(config)
     this.handler.subscribe({
-      send: function(type, msg) {
+      send: function(type: string, msg: string) {
         if (type === 'logging:error')
           console.error(msg)
       }
     })
     this._updatePortList()
     this.portListListen()
-    ipcMain.on('serial:connect', (ev, comName) => {
-      if (this.port === null) { this.connectPort(comName) }
+    ipcMain.on('serial:connect', (ev: any, comName: string) => {
+      if (this.port === null) {
+        this.connectPort(comName)
+      }
     })
-    ipcMain.on('serial:write', (ev, line) => {
+    ipcMain.on('serial:write', (ev: any, line: string) => {
       this.write(line)
     })
     this.handler.on('out', (str) => {
       this.write(str)
-      this.senders.forEach(sender => {
+      this.senders.forEach((sender: any) => {
         sender.send('serial:wrote', str)
       })
     })
   }
 
   // ひとつのシリアルポートラッパーに対して複数のListenerを登録できる
-  subscribe (sender) {
+  subscribe (sender: WebContents) {
     this.handler.subscribe(sender)
     sender.send('serial:ports', this.ports)
     this.senders.push(sender)
@@ -45,7 +54,7 @@ class SerialPortWrapper {
     this.handler.unsubscribe()
   }
 
-  configChanged(cfg) {
+  configChanged(cfg: Config) {
     this.handler.configChanged(cfg)
   }
 
@@ -70,7 +79,7 @@ class SerialPortWrapper {
       const seki = _.intersectionWith(this.ports, ports, _.isEqual) // A かつ B 両方が真 (論理積)
       const ho = _.differenceWith(wa, seki, _.isEqual) // A または B のいずれかである
       if (ho.length !== 0) {
-        this.senders.forEach(sender => {
+        this.senders.forEach((sender: Sender) => {
           sender.send('serial:ports', ports)
         })
       }
@@ -78,10 +87,9 @@ class SerialPortWrapper {
     })
   }
 
-  connectPort (comName) {
-    let intervalCleanFlag
+  connectPort (comName: string) {
     if (this.port !== null && this.port.isOpen) {
-      this.port.close(err => {
+      this.port.close((err: Error) => {
         if (err) console.warn(err)
       })
     }
@@ -89,14 +97,15 @@ class SerialPortWrapper {
       baudRate: 115200
     })
     p.on('open', () => {
-      this.senders.forEach(sender => {
+      this.senders.forEach((sender: Sender) => {
         sender.send('serial:connected', p)
       })
     })
     let chars = ''
 
     p.on('readable', () => {
-      const char = p.read().toString()
+      let char = p.read()
+      char = char && char.toString()
       if (char === '\r\n') {
         let line = chars.trim()
         this.handler.handle(line)
@@ -105,17 +114,16 @@ class SerialPortWrapper {
       chars += char
     })
     p.on('close', () => {
-      this.senders.forEach(sender => {
+      this.senders.forEach((sender: Sender) => {
         sender.send('serial:close')
       })
       this.port = null
-      if (process.env.NODE_ENV === 'dev') { clearInterval(intervalCleanFlag) }
     })
     this.port = p
     // this.emit('connected', p)
   }
 
-  write (text) {
+  write (text: string) {
     if (this.port === null)
       console.warn('port is not connected.')
     else

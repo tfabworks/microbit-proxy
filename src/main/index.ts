@@ -1,62 +1,54 @@
 import SerialPortWrapper from './SerialPortWrapper'
-import { ipcMain, app, shell, BrowserWindow, Menu, Tray, MenuItem } from 'electron'
+import { ipcMain, app, shell, BrowserWindow, Menu, Tray, MenuItem, Event } from 'electron'
 import { autoUpdater } from "electron-updater"
 import path from 'path'
 import env from '../env'
 
-const {Config} = require('../config')
+import {Config} from '../config'
 
-let mainWindow
+let mainWindow: BrowserWindow|null;
 let tray = null
-let config = new Config()
+let config = new Config({})
 let serial = new SerialPortWrapper(config)
 
-config.on('changed', (cfg) => {
+config.on('changed', (cfg: Config) => {
   serial.configChanged(cfg)
 })
 
 function setIpcHandler() {
-  ipcMain.on('ready', async (ev) => {
+  ipcMain.on('ready', async (ev: Event) => {
     serial.subscribe(ev.sender)
     if (serial.port)
       ev.sender.send('serial:connected', serial.port)
     await autoUpdater.checkForUpdatesAndNotify()
   })
 
-  ipcMain.on('config:add', async (ev, key, value) => {
+  ipcMain.on('config:add', async (ev: Event, key: any, value: any) => {
     config.once('changed', (cfg) => {
       ev.sender.send('config:changed', cfg)
     })
     config.modify(key, value)
   })
 
-  ipcMain.on('config:remove', async (ev, key, value) => {
-    config.once('changed', (cnf) =>{
-      ev.sender.send('config:changed', cnf)
-    })
-    const newConf = config.parameters.filter(v => { return v.id !== value })
-    config.modify(key, newConf)
+  autoUpdater.on('error', (_, err) => {
+    mainWindow && mainWindow.webContents.send('notify', `😱 Error: ${err}`)
   })
 
-  autoUpdater.on('error', (ev, err) => {
-    mainWindow.webContents.send('notify', `😱 Error: ${err}`)
+  autoUpdater.once('checking-for-update', () => {
+    mainWindow && mainWindow.webContents.send('notify', '🔎 Checking for updates')
   })
 
-  autoUpdater.once('checking-for-update', (ev, err) => {
-    mainWindow.webContents.send('notify', '🔎 Checking for updates')
+  autoUpdater.once('update-available', () => {
+    mainWindow && mainWindow.webContents.send('notify', '🎉 Update available. Downloading ⌛️')
   })
 
-  autoUpdater.once('update-available', (ev, err) => {
-    mainWindow.webContents.send('notify', '🎉 Update available. Downloading ⌛️')
+  autoUpdater.once('update-not-available', () => {
+    mainWindow && mainWindow.webContents.send('notify', '👎 Update not available')
   })
 
-  autoUpdater.once('update-not-available', (ev, err) => {
-    mainWindow.webContents.send('notify', '👎 Update not available')
-  })
-
-  autoUpdater.once('update-downloaded', (ev, err) => {
+  autoUpdater.once('update-downloaded', () => {
     const msg = '🤘 Update downloaded'
-    mainWindow.webContents.send('notify', msg)
+    mainWindow && mainWindow.webContents.send('notify', msg)
   })
 
 }
@@ -87,8 +79,8 @@ function createMainWindow () {
 
   if (env.isWin) {
     mainWindow.on('app-command', (e, cmd) => {
-      if (cmd === 'browser-backward' && mainWindow.webContents.canGoBack()) {
-        mainWindow.webContents.goBack()
+      if (cmd === 'browser-backward' && mainWindow && mainWindow.webContents.canGoBack()) {
+        mainWindow && mainWindow.webContents.goBack()
       }
     })
   }
@@ -96,7 +88,7 @@ function createMainWindow () {
 
 function createApp() {
   app.on('ready', () => {
-    const iconPath = (env.isWin)? '../../build/icons/microbit-proxy.ico' : '../../build/icons/microbit-proxy.png'
+    const iconPath = (env.isWin)? '../build/icons/microbit-proxy.ico' : '../build/icons/microbit-proxy.png'
     tray = new Tray(path.join(__dirname, iconPath))
     const contextMenu = new Menu()
     contextMenu.append(new MenuItem({label: 'Windowを開く', click() {

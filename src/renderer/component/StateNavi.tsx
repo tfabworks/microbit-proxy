@@ -1,9 +1,14 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+
+interface IProps {
+  port: any;
+  successCnt: number;
+  errorCnt: number;
+}
 
 export default
-class StateNavi extends React.Component {
-  constructor (props) {
+class StateNavi extends React.Component<IProps> {
+  constructor (props: IProps) {
     super(props)
   }
 
@@ -33,10 +38,4 @@ class StateNavi extends React.Component {
       </section>
     )
   }
-}
-
-StateNavi.propTypes = {
-  port: PropTypes.object,
-  successCnt: PropTypes.number.isRequired,
-  errorCnt: PropTypes.number.isRequired
 }
