@@ -110,7 +110,7 @@ class App extends React.Component<IProps, IState> {
         draggable: false
       }, 'info')
     })
-    ipcRenderer.on('logging:warn', (ev: any, str: any) => {
+    ipcRenderer.on('logging:error', (ev: any, str: any) => {
       this.setState(before => {
         return { errorCnt: before.errorCnt + 1 }
       })
