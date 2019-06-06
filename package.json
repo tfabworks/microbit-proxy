@@ -1,15 +1,16 @@
 {
-  "name": "microbit-proxy",
+  "name": "tfabworks-edge-client",
   "homepage": "https://tfabworks.com",
-  "version": "0.5.5",
+  "version": "0.5.5-typescript",
   "description": "mbit open the web.",
   "main": "dist",
   "scripts": {
-    "start": "NODE_ENV=dev electron .",
+    "start": "electron .",
     "postinstall": "electron-builder install-app-deps",
-    "build": "webpack",
+    "build": "cross-env NODE_ENV=development webpack",
+    "build:prod": "cross-env NODE_ENV=production webpack",
     "watch": "webpack -w",
-    "dist": "electron-builder -w",
+    "dist": "npm run build:prod && electron-builder -w",
     "clean": "rm -rf ./node_modules/ && rm -rf ./build/",
     "test": "jest",
     "release": "build"
@@ -29,6 +30,7 @@
     "@types/react-dom": "^16.8.4",
     "@types/serialport": "^7.0.3",
     "@types/uuid": "^3.4.4",
+    "cross-env": "^5.2.0",
     "electron": "^4.2.3",
     "electron-builder": "^20.41.0",
     "jest": "^24.8.0",
@@ -52,7 +54,7 @@
     "uuid": "^3.3.2"
   },
   "build": {
-    "productName": "microbit-proxy",
+    "productName": "tfabworks-edge-client",
     "appId": "com.tfabworks",
     "directories": {
       "output": "build"

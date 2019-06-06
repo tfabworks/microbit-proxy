@@ -24,7 +24,6 @@ get('initialized')
 })
 .then( getConfig )
 .then( (config: Config) => {
-  console.log(config)
   AppRender(config)
 })
 

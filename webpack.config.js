@@ -1,7 +1,7 @@
 const path = require('path');
 
 var main = {
-  mode: 'development',
+  mode: process.env.NODE_ENV,
   target: 'electron-main',
   entry: path.join(__dirname, 'src', 'main', 'index'),
   output: {
@@ -33,7 +33,7 @@ var main = {
 };
 
 var renderer = {
-  mode: 'development',
+  mode: process.env.NODE_ENV,
   target: 'electron-renderer',
   entry: path.join(__dirname, 'src', 'renderer', 'index'),
   output: {

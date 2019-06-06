@@ -29,7 +29,7 @@ function supportLocale(localeStr: string) {
 }
 
 export default {
-  "title": "Micro:bit-Connect",
+  "title": package_json.name,
   "version": package_json.version,
   "isWin": (process.platform === 'win32'),
   "stage": stage,
