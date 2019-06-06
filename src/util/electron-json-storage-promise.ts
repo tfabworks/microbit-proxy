@@ -4,7 +4,7 @@ export interface IData {
   [key: string]: any;
 }
 
-export function getP (key: any, ...options: any): Promise<IData> {
+export function getP (key: any, ...options: any): Promise<any> {
   return new Promise((resolve, reject) => {
     storage.get(key, options, (err: Error, data: IData) => {
       if (err) {

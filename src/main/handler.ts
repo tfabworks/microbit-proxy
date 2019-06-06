@@ -42,10 +42,6 @@ class Handler extends EventEmitter {
     this.senders = []
   }
 
-  configChanged(cfg: Config) {
-    this.config = cfg
-  }
-
   handle(line: string) {
     this._handler(line)
   }

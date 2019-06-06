@@ -11,23 +11,12 @@ let tray = null
 let config = new Config({})
 let serial = new SerialPortWrapper(config)
 
-config.on('changed', (cfg: Config) => {
-  serial.configChanged(cfg)
-})
-
 function setIpcHandler() {
   ipcMain.on('ready', async (ev: Event) => {
     serial.subscribe(ev.sender)
     if (serial.port)
       ev.sender.send('serial:connected', serial.port)
     await autoUpdater.checkForUpdatesAndNotify()
-  })
-
-  ipcMain.on('config:add', async (ev: Event, key: any, value: any) => {
-    config.once('changed', (cfg) => {
-      ev.sender.send('config:changed', cfg)
-    })
-    config.modify(key, value)
   })
 
   autoUpdater.on('error', (_, err) => {
@@ -64,7 +53,7 @@ function createMainWindow () {
   })
 
   mainWindow.loadFile('index.html')
-  if (env.stage === 'dev') { mainWindow.webContents.openDevTools() }
+  if (env.stage === 'development') { mainWindow.webContents.openDevTools() }
 
   // a tag でリンクを開く時、デフォルトのブラウザで表示する
   mainWindow.webContents.on('new-window', function (event, url) {

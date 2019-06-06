@@ -54,10 +54,6 @@ class SerialPortWrapper {
     this.handler.unsubscribe()
   }
 
-  configChanged(cfg: Config) {
-    this.handler.configChanged(cfg)
-  }
-
   portListListen () {
     setTimeout(() => {
       this._updatePortList()
