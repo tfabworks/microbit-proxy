@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ToastContainer, toast } from 'react-toastify';
 import { ipcRenderer } from 'electron'
+import QRcode from 'qrcode'
 
 import StateNavi from './component/StateNavi'
 import { VersionComponent } from './component/etc'
@@ -17,6 +18,7 @@ class App extends React.Component {
       successCnt: 0,
       errorCnt: 0,
     }
+    this.qrref = React.createRef()
 
    this._setIpcListener()
     ipcRenderer.send('ready')
@@ -28,7 +30,7 @@ class App extends React.Component {
         <ToastContainer />
         <div id='overlay'>
           <div id='overlay-button'>
-            <a href={'https://mbitc.net/my/?uuid=' + this.props.config.uuid} target='_blank'>
+            <a href={this.generateUuidUrl()} target='_blank'>
               <span className='icon'>
                 <i className='fas fa-2x fa-plug' />
               </span>
@@ -37,6 +39,9 @@ class App extends React.Component {
         </div>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt} />
         <div className='container'>
+          <a href={this.generateUuidUrl()} target='_blank'>
+            <canvas id="qrcode" ref={this.qrref}/>
+          </a>
           <PortSelector port={this.state.port} ports={this.state.ports} />
           <VersionComponent />
         </div>
@@ -44,6 +49,15 @@ class App extends React.Component {
     )
   }
 
+  componentDidMount() {
+    console.log(this.qrref.current)
+    const canvas = this.qrref.current;
+    QRcode.toCanvas(canvas, this.generateUuidUrl(), {
+      scale: 7
+    }, (err) => {
+      if (err) console.error(err)
+    })
+  }
   notify(msg, options, type="default") {
     switch(type) {
       case 'success':
@@ -88,6 +102,9 @@ class App extends React.Component {
         return { errorCnt: before.errorCnt + 1 }
       })
     })
+  }
+  generateUuidUrl() {
+    return 'https://mbitc.net/my/?uuid=' + this.props.config.uuid
   }
 }
 
