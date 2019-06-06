@@ -2,19 +2,15 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ToastContainer, toast } from 'react-toastify';
 import { ipcRenderer } from 'electron'
-import { LogTerminal } from './util'
 
-import Parameter from './component/Parameter'
 import StateNavi from './component/StateNavi'
-import { FooterLogo, VersionComponent } from './component/etc'
-import Term from './component/Terminal'
+import { VersionComponent } from './component/etc'
 import PortSelector from './component/PortSelector'
 
 export default
 class App extends React.Component {
   constructor (props) {
     super(props)
-    this.term = LogTerminal()
     this.state = {
       port: null,
       ports: [],
@@ -41,11 +37,8 @@ class App extends React.Component {
         </div>
         <StateNavi port={this.state.port} successCnt={this.state.successCnt} errorCnt={this.state.errorCnt} />
         <div className='container'>
-          <Parameter parameters={this.props.config.parameters} />
-          <Term term={this.term} />
           <PortSelector port={this.state.port} ports={this.state.ports} />
           <VersionComponent />
-          <FooterLogo />
         </div>
       </div>
     )
@@ -70,14 +63,10 @@ class App extends React.Component {
       this.setState({ ports: ports })
     })
     ipcRenderer.on('serial:connected', (_, port) => {
-      this.term.clear()
       this.setState({ port: port })
-      this.term.logging('Connected')
     })
     ipcRenderer.on('serial:close', () => {
-      this.term.clear()
       this.setState({ port: null })
-      this.term.write('Disconnected.')
     })
     ipcRenderer.on('serial:wrote', () => {
       this.setState(before => {
@@ -94,14 +83,10 @@ class App extends React.Component {
         draggable: false
       }, 'info')
     })
-    ipcRenderer.on('logging:info', (ev, str) => {
-      this.term.logging(str)
-    })
     ipcRenderer.on('logging:warn', (ev, str) => {
       this.setState(before => {
         return { errorCnt: before.errorCnt + 1 }
       })
-      this.term.logging(`Error: ${str}`)
     })
   }
 }

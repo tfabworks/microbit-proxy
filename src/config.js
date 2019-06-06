@@ -7,24 +7,19 @@ import {getP, setP} from './util/electron-json-storage-promise'
 export class Config extends EventEmitter {
   constructor(cfg) {
     super()
+    this.title = ""
     this.uuid = null
-    this.parameters = []
   
     if (If(cfg)) {
       this.title = cfg.title
       this.uuid = cfg.uuid
-      this.parameters = cfg.parameters
     }
   }
 
   async lateinit() {
-    await Promise.all([
-      getP('uuid'),
-      getP('parameters')
-    ])
-    .then(arr => {
-      this.uuid = arr[0]
-      this.parameters = arr[1]
+    await getP('uuid')
+    .then(uuid => {
+      this.uuid = uuid
     })
     this.emit('changed', this)
   }
