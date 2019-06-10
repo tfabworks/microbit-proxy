@@ -101,13 +101,16 @@ class SerialPortWrapper {
 
     p.on('readable', () => {
       let char = p.read()
+      console.log("word:\t" + JSON.stringify(char && char.toString()))
       char = char && char.toString()
-      if (char === '\r\n') {
+      chars += char
+
+      if (this.endsWith(chars, '\r\n')) {
         let line = chars.trim()
+        console.log("line:\t" + JSON.stringify(line))
         this.handler.handle(line)
         chars = ''
       }
-      chars += char
     })
     p.on('close', () => {
       this.senders.forEach((sender: Sender) => {
@@ -124,5 +127,9 @@ class SerialPortWrapper {
       console.warn('port is not connected.')
     else
      this.port.write(text)
+  }
+
+  endsWith(str: string, match: string) {
+    return str.slice(-match.length) === match
   }
 }

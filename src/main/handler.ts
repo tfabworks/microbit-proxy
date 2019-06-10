@@ -63,7 +63,7 @@ class Handler extends EventEmitter {
     
     this.loggingInfo(`SerialNo:${received.s.toString()} ID: ${received.n} VALUE:${received.v.toString()}`)
 
-    req.url = env["url:api"] + '/api/'
+    req.url = env["url:api"] + '/api'
     req.method = 'POST'
     req.postjson = {
       'uuid': this.config.uuid,
@@ -85,7 +85,7 @@ class Handler extends EventEmitter {
       this.loggingInfo(response.status.toString())
       return response.text()
     }).catch(e => {
-      this.loggingError('http error')
+      this.loggingError(e)
       return new Error('http error')
     })
 
